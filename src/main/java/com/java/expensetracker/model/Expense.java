@@ -1,11 +1,13 @@
 package com.java.expensetracker.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import java.math.BigDecimal;
 import java.time.Instant;
 
 @AllArgsConstructor
@@ -20,8 +22,12 @@ public class Expense {
     private Instant expenseDate;
     private String description;
 
+    private BigDecimal amount;
+
     @ManyToOne
     private Category category;
+
+    @JsonIgnore
     @ManyToOne
     private User user;
 

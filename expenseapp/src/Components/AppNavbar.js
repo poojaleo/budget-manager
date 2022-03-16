@@ -5,7 +5,7 @@ class AppNavbar extends React.Component {
     render() {
         return (
             <div>
-                <Navbar color="dark"  expand="lg" full dark>
+                <Navbar color="dark"  expand="lg" dark>
                     <NavbarBrand href="/">
                         Expense Tracker Application
                     </NavbarBrand>

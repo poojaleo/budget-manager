@@ -40,7 +40,7 @@ public class CategoryController {
     }
 
     @PostMapping("/category")
-    public ResponseEntity<?> createCategory(@RequestBody Category category) throws URISyntaxException {
+    public ResponseEntity<?> createCategory(@RequestBody Category category) {
         Optional<Category> optionalCategory = categoryRepository.findById(category.getId());
 
         if(optionalCategory.isPresent()) {
@@ -48,7 +48,12 @@ public class CategoryController {
         }
 
         Category result = categoryRepository.save(category);
-        return ResponseEntity.created(new URI("/api/category" + result.getId())).body(result);
+        try {
+            return ResponseEntity.created(new URI("/api/category" + result.getId())).body(result);
+        } catch (URISyntaxException uriSyntaxException) {
+            return new ResponseEntity<>("Was unable to create the category", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
     @PutMapping("/category/{id}")
