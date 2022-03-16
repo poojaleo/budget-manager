@@ -5,6 +5,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import '../App.css';
 import {Button, Container, Form, FormGroup, Table} from "reactstrap";
 import {Link} from "react-router-dom";
+import Moment from "react-moment";
 
 class Expenses extends React.Component {
     emptyItem = {
@@ -32,6 +33,9 @@ class Expenses extends React.Component {
             item : this.emptyItem,
             expenses : []
         }
+        this.handleFormSubmit = this.handleFormSubmit.bind(this);
+        this.handleFormChange = this.handleFormChange.bind(this);
+        this.handleDateChange = this.handleDateChange.bind(this);
     }
 
 
@@ -46,8 +50,21 @@ class Expenses extends React.Component {
         this.setState({expenses : expenseBody, isLoading : false});
     }
 
-    handleFormChange() {
+    async handleFormChange(event) {
+        const target = event.target;
+        const value = target.value;
+        const name = target.name;
+        let itemChange = {...this.state.item};
+        itemChange[name] = value;
+        this.setState({item : itemChange});
+        console.log(this.state.item);
+    }
 
+    async handleDateChange(date) {
+        let itemChange = {...this.state.item};
+        itemChange["expenseDate"] = date;
+        this.setState({item : itemChange});
+        console.log(this.state.item);
     }
 
     async handleFormSubmit(event) {
@@ -62,7 +79,8 @@ class Expenses extends React.Component {
             body : JSON.stringify(item)
         });
 
-        console.log(this.state);
+
+        this.props.history.push("/expenses");
     }
 
     async removeExpense(id) {
@@ -102,7 +120,7 @@ class Expenses extends React.Component {
                 <td>{expense.description}</td>
                 <td>{expense.amount}</td>
                 <td>{expense.category.categoryName}</td>
-                <td>{expense.expenseDate}</td>
+                <td><Moment date={expense.expenseDate} format={"YYYY/MM/DD"} ></Moment> </td>
                 <td><Button size={"sm"} color={"danger"} onClick={() => this.removeExpense(expense.id)}>Delete</Button></td>
             </tr>
         )
@@ -114,8 +132,8 @@ class Expenses extends React.Component {
                     {title}
                     <Form onSubmit={this.handleFormSubmit}>
                         <FormGroup>
-                            <label htmlFor="title">Title</label>
-                            <input type="text" name="title" id="title" onChange={this.handleFormChange} autoComplete={"name"}/>
+                            <label htmlFor="description">Title</label>
+                            <input type="text" name="description" id="description" onChange={this.handleFormChange} autoComplete={"name"}/>
                         </FormGroup>
                         <FormGroup>
                             <label htmlFor="category">Category</label>
@@ -125,7 +143,7 @@ class Expenses extends React.Component {
                         </FormGroup>
                         <FormGroup>
                             <label htmlFor="expenseDate">Expense Date</label>
-                            <DatePicker selected={this.state.date} onChange={this.handleFormChange}></DatePicker>
+                            <DatePicker selected={this.state.item.expenseDate} onChange={this.handleDateChange}></DatePicker>
 
                         </FormGroup>
                         <div className={"row"}>
