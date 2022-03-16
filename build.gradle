@@ -21,6 +21,9 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'com.amazonaws:aws-java-sdk-dynamodb:1.12.173'
+    implementation group: 'org.springframework.data', name: 'spring-data-releasetrain', version: 'Lovelace-SR16', ext: 'pom'
+    compileOnly group: 'com.github.derjust', name: 'spring-data-dynamodb', version: '5.1.0'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.h2database:h2'

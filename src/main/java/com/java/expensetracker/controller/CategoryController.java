@@ -7,8 +7,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -21,18 +23,24 @@ public class CategoryController {
         this.categoryRepository = categoryRepository;
     }
 
-
     @GetMapping("/category")
     public ResponseEntity<Collection<Category>> categories() {
-        Collection<Category> categories = categoryRepository.findAll();
+        Iterable<Category> categoryIterable = categoryRepository.findAll();
+        Collection<Category> categories = new ArrayList<>();
+
+        for(Category category : categoryIterable) {
+            categories.add(category);
+        }
+
         return new ResponseEntity<>(categories, HttpStatus.OK);
     }
 
-    @GetMapping("/category/{id}")
-    public ResponseEntity<?> getCategory(@PathVariable Long id) {
-        Optional<Category> optionalCategory = categoryRepository.findById(id);
+    @GetMapping("/category/{categoryName}")
+    public ResponseEntity<?> getCategory(@PathVariable String categoryName) {
+        Optional<Category> optionalCategory = categoryRepository.findById(categoryName);
         if(!optionalCategory.isPresent()) {
-            return new ResponseEntity<>(String.format("Id: %s not found. Send a valid request", id), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(String.format
+                    ("Category Name: %s not found. Send a valid request", categoryName), HttpStatus.NOT_FOUND);
         }
 
         Category category = optionalCategory.get();
@@ -41,44 +49,53 @@ public class CategoryController {
 
     @PostMapping("/category")
     public ResponseEntity<?> createCategory(@RequestBody Category category) {
-        Optional<Category> optionalCategory = categoryRepository.findById(category.getId());
+        Optional<Category> optionalCategory = categoryRepository.findById(category.getCategoryName());
 
         if(optionalCategory.isPresent()) {
-            return new ResponseEntity<>(String.format("Id: %s is already in use. Send a valid request", category.getId()), HttpStatus.CONFLICT);
+            return new ResponseEntity<>(String.format
+                    ("Category: %s already exists. Send a valid request", category.getCategoryName()), HttpStatus.CONFLICT);
         }
 
         Category result = categoryRepository.save(category);
         try {
-            return ResponseEntity.created(new URI("/api/category" + result.getId())).body(result);
+            return ResponseEntity.created(new URI("/api/category" + result.getCategoryName())).body(result);
         } catch (URISyntaxException uriSyntaxException) {
             return new ResponseEntity<>("Was unable to create the category", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
 
-    @PutMapping("/category/{id}")
-    public ResponseEntity<?> updateCategory(@PathVariable Long id, @RequestParam String categoryName) throws URISyntaxException {
-        Optional<Category> optionalCategory = categoryRepository.findById(id);
+    @PutMapping("/category/{categoryName}")
+    public ResponseEntity<?> updateCategory(@PathVariable String categoryName, @RequestParam String budget) throws URISyntaxException {
+        Optional<Category> optionalCategory = categoryRepository.findById(categoryName);
 
         if(!optionalCategory.isPresent()) {
-            return new ResponseEntity<>(String.format("Id: %s not found. Send a valid request", id), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(String.format("Category: %s not found. Send a valid request", categoryName), HttpStatus.NOT_FOUND);
         }
 
         Category category = optionalCategory.get();
-        category.setCategoryName(categoryName);
+
+        try {
+            BigDecimal budgetBD = new BigDecimal(budget);
+            category.setCategoryBudget(budgetBD);
+        } catch (NumberFormatException exception) {
+            return new ResponseEntity<>(String.format("Budget: %s not a valid number. Send a valid request", budget), HttpStatus.CONFLICT);
+        }
+
+
         Category result = categoryRepository.save(category);
-        return ResponseEntity.created(new URI("/api/category" + result.getId())).body(result);
+        return ResponseEntity.created(new URI("/api/category" + result.getCategoryName())).body(result);
     }
 
-    @DeleteMapping("/category/{id}")
-    public ResponseEntity<?> deleteCategory(@PathVariable Long id) {
-        Optional<Category> optionalCategory = categoryRepository.findById(id);
+    @DeleteMapping("/category/{categoryName}")
+    public ResponseEntity<?> deleteCategory(@PathVariable String categoryName) {
+        Optional<Category> optionalCategory = categoryRepository.findById(categoryName);
         if(!optionalCategory.isPresent()) {
-            return new ResponseEntity<>(String.format("Id: %s not found. Send a valid request", id), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(String.format("Category: %s not found. Send a valid request", categoryName), HttpStatus.NOT_FOUND);
         }
 
         try {
-            categoryRepository.deleteById(id);
+            categoryRepository.deleteById(categoryName);
         } catch (DataIntegrityViolationException exception) {
             return new ResponseEntity<>("Category in use, Cannot be deleted", HttpStatus.CONFLICT);
         }

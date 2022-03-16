@@ -1,7 +1,14 @@
 package com.java.expensetracker.repository;
 
 import com.java.expensetracker.model.Expense;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.socialsignin.spring.data.dynamodb.repository.EnableScan;
+import org.socialsignin.spring.data.dynamodb.repository.config.EnableDynamoDBRepositories;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
-public interface ExpenseRepository extends JpaRepository<Expense, Long> {
+@Repository
+@EnableScan
+@EnableDynamoDBRepositories
+public interface ExpenseRepository extends CrudRepository<Expense, String> {
+
 }

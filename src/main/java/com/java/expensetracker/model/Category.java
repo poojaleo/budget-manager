@@ -1,23 +1,29 @@
 package com.java.expensetracker.model;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
-import javax.persistence.*;
+import java.math.BigDecimal;
 
-@NoArgsConstructor
+
 @AllArgsConstructor
 @Data
-@Entity
-@Table(name = "category")
+@DynamoDBTable(tableName = "category")
 public class Category {
 
-    @Id
-    private Long id;
-    @NonNull
     private String categoryName;
-    /*@ManyToOne(cascade = CascadeType.PERSIST)
-    private User user;*/
+
+    private BigDecimal categoryBudget;
+
+    @DynamoDBHashKey
+    public String getCategoryName() {
+        return categoryName;
+    }
+    @DynamoDBAttribute
+    public BigDecimal getCategoryBudget() {
+        return categoryBudget;
+    }
 }
