@@ -2,11 +2,8 @@ package com.java.expensetracker.utility;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverter;
 import com.java.expensetracker.model.Category;
-import com.java.expensetracker.repository.DynamoDbRepository;
 
 public class CategoryClassConverter implements DynamoDBTypeConverter<String, Category> {
-
-    private DynamoDbRepository repository;
 
     @Override
     public String convert(Category object) {
@@ -15,6 +12,13 @@ public class CategoryClassConverter implements DynamoDBTypeConverter<String, Cat
 
     @Override
     public Category unconvert(String object) {
-        return repository.getCategory(object);
+        return new Category(object, null);
+
+        /*Optional<Category> optionalCategory = categoryController.getCategoryConversionMethod(object);
+
+        if(!optionalCategory.isPresent()) {
+            return null;
+        }
+        return optionalCategory.get();*/
     }
 }

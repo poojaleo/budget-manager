@@ -1,7 +1,11 @@
 package com.java.expensetracker.controller;
 
+import com.java.expensetracker.model.Category;
 import com.java.expensetracker.model.Expense;
+import com.java.expensetracker.repository.CategoryRepository;
 import com.java.expensetracker.repository.ExpenseRepository;
+import com.java.expensetracker.request.CreateExpenseRequest;
+import com.java.expensetracker.utility.ExpenseTrackerUtility;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,9 +20,11 @@ import java.util.Optional;
 @RequestMapping("/api")
 public class ExpenseController {
     private final ExpenseRepository expenseRepository;
+    private final CategoryRepository categoryRepository;
 
-    public ExpenseController(ExpenseRepository expenseRepository) {
+    public ExpenseController(ExpenseRepository expenseRepository, CategoryRepository categoryRepository) {
         this.expenseRepository = expenseRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     @GetMapping("/expense")
@@ -27,6 +33,11 @@ public class ExpenseController {
         Collection<Expense> expenses = new ArrayList<>();
 
         for(Expense expense : expenseIterator) {
+            Optional<Category> optionalCategory = categoryRepository.findById(expense.getCategory().getCategoryName());
+            if(optionalCategory.isPresent()) {
+                Category category = optionalCategory.get();
+                expense.setCategory(category);
+            }
             expenses.add(expense);
         }
 
@@ -42,6 +53,11 @@ public class ExpenseController {
         }
 
         Expense expense = optionalExpense.get();
+        Optional<Category> optionalCategory = categoryRepository.findById(expense.getCategory().getCategoryName());
+        if(optionalCategory.isPresent()) {
+            Category category = optionalCategory.get();
+            expense.setCategory(category);
+        }
         return new ResponseEntity<>(expense, HttpStatus.OK);
     }
 
@@ -57,17 +73,14 @@ public class ExpenseController {
     }
 
     @PostMapping("/expense")
-    public ResponseEntity<?> createExpense(@RequestBody Expense expense) {
-        Optional<Expense> optionalExpense = this.expenseRepository.findById(expense.getExpenseId());
+    public ResponseEntity<?> createExpense(@RequestBody CreateExpenseRequest expenseRequest) {
 
-        if(optionalExpense.isPresent()) {
-            return new ResponseEntity<>(String.format(
-                    "Id: %s is already in use. Send a valid request", expense.getExpenseId()), HttpStatus.CONFLICT);
-        }
+        String id = ExpenseTrackerUtility.generateId();
+        Expense expense = new Expense(id, expenseRequest);
 
         Expense result = expenseRepository.save(expense);
         try {
-            return ResponseEntity.created(new URI("/api/expense" + result.getExpenseId())).body(result);
+            return ResponseEntity.created(new URI("/api/expense/" + expense.getExpenseId())).body(result);
         } catch (URISyntaxException uriSyntaxException) {
             return new ResponseEntity<>("Was unable to create the expense", HttpStatus.INTERNAL_SERVER_ERROR);
         }

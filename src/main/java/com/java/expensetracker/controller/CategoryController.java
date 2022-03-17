@@ -23,6 +23,10 @@ public class CategoryController {
         this.categoryRepository = categoryRepository;
     }
 
+    public Optional<Category> getCategoryConversionMethod(String categoryName) {
+        return categoryRepository.findById(categoryName);
+    }
+
     @GetMapping("/category")
     public ResponseEntity<Collection<Category>> categories() {
         Iterable<Category> categoryIterable = categoryRepository.findAll();
@@ -58,7 +62,7 @@ public class CategoryController {
 
         Category result = categoryRepository.save(category);
         try {
-            return ResponseEntity.created(new URI("/api/category" + result.getCategoryName())).body(result);
+            return ResponseEntity.created(new URI("/api/category" + category.getCategoryName())).body(result);
         } catch (URISyntaxException uriSyntaxException) {
             return new ResponseEntity<>("Was unable to create the category", HttpStatus.INTERNAL_SERVER_ERROR);
         }

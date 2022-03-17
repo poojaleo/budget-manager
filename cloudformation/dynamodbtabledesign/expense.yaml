@@ -5,12 +5,8 @@ Resources:
       "AttributeDefinitions":
         - "AttributeName": "expenseId"
           "AttributeType": "S"
-        - "AttributeName": "expenseDate"
-            "AttributeType": "S"
       "KeySchema":
         - "AttributeName": "expenseId"
           "KeyType": "HASH"
-        - "AttributeName": "expenseDate"
-            "KeyType": "RANGE"
       BillingMode: PAY_PER_REQUEST
       TableName: "expense"
