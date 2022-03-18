@@ -3,10 +3,14 @@ Resources:
     Type: AWS::DynamoDB::Table
     Properties:
       "AttributeDefinitions":
+        - "AttributeName": "username"
+          "AttributeType": "S"
         - "AttributeName": "categoryName"
           "AttributeType": "S"
       "KeySchema":
-        - "AttributeName": "categoryName"
+        - "AttributeName": "username"
           "KeyType": "HASH"
+        - "AttributeName": "categoryName"
+          "KeyType": "RANGE"
       BillingMode: PAY_PER_REQUEST
       TableName: "category"

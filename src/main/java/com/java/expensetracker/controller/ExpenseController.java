@@ -1,6 +1,7 @@
 package com.java.expensetracker.controller;
 
 import com.java.expensetracker.model.Category;
+import com.java.expensetracker.model.CategoryId;
 import com.java.expensetracker.model.Expense;
 import com.java.expensetracker.repository.CategoryRepository;
 import com.java.expensetracker.repository.ExpenseRepository;
@@ -33,7 +34,8 @@ public class ExpenseController {
         Collection<Expense> expenses = new ArrayList<>();
 
         for(Expense expense : expenseIterator) {
-            Optional<Category> optionalCategory = categoryRepository.findById(expense.getCategory().getCategoryName());
+            Optional<Category> optionalCategory = categoryRepository.findById(
+                    new CategoryId(expense.getCategory().getUsername(), expense.getCategory().getCategoryName()));
             if(optionalCategory.isPresent()) {
                 Category category = optionalCategory.get();
                 expense.setCategory(category);
@@ -53,7 +55,9 @@ public class ExpenseController {
         }
 
         Expense expense = optionalExpense.get();
-        Optional<Category> optionalCategory = categoryRepository.findById(expense.getCategory().getCategoryName());
+        Optional<Category> optionalCategory = categoryRepository.findById(
+                new CategoryId(expense.getCategory().getUsername(), expense.getCategory().getCategoryName())
+        );
         if(optionalCategory.isPresent()) {
             Category category = optionalCategory.get();
             expense.setCategory(category);

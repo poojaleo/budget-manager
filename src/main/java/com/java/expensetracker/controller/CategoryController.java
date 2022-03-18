@@ -1,7 +1,10 @@
 package com.java.expensetracker.controller;
 
 import com.java.expensetracker.model.Category;
+import com.java.expensetracker.model.CategoryId;
 import com.java.expensetracker.repository.CategoryRepository;
+import com.java.expensetracker.request.CreateCategoryRequest;
+import com.java.expensetracker.response.category.CategoryResponse;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,58 +26,82 @@ public class CategoryController {
         this.categoryRepository = categoryRepository;
     }
 
-    public Optional<Category> getCategoryConversionMethod(String categoryName) {
-        return categoryRepository.findById(categoryName);
+    public CategoryResponse getCategoryConversionMethod(String username, String categoryName) {
+        Optional<Category> optionalCategory = categoryRepository.findById(new CategoryId(username, categoryName));
+        if(!optionalCategory.isPresent()) {
+            return null;
+        }
+        Category category = optionalCategory.get();
+        return new CategoryResponse(category.getUsername(), category.getCategoryName(), category.getCategoryBudget());
     }
 
-    @GetMapping("/category")
-    public ResponseEntity<Collection<Category>> categories() {
-        Iterable<Category> categoryIterable = categoryRepository.findAll();
-        Collection<Category> categories = new ArrayList<>();
+    @GetMapping("{username}/category")
+    public ResponseEntity<?> categories(@PathVariable String username) {
+        Iterable<Category> categoryIterable = categoryRepository.findByUsername(username);
+
+        if(((Collection<Category>) categoryIterable).size() == 0) {
+            return new ResponseEntity<>(String.format
+                    ("Username: %s not found. Send a valid request", username), HttpStatus.NOT_FOUND);
+        }
+        Collection<CategoryResponse> categories = new ArrayList<>();
 
         for(Category category : categoryIterable) {
-            categories.add(category);
+            categories.add(new CategoryResponse(category.getUsername(), category.getCategoryName(), category.getCategoryBudget()));
         }
 
         return new ResponseEntity<>(categories, HttpStatus.OK);
     }
 
-    @GetMapping("/category/{categoryName}")
-    public ResponseEntity<?> getCategory(@PathVariable String categoryName) {
-        Optional<Category> optionalCategory = categoryRepository.findById(categoryName);
+    @GetMapping("{username}/category/{categoryName}")
+    public ResponseEntity<?> getCategory(@PathVariable String username, @PathVariable String categoryName) {
+        Optional<Category> optionalCategory = categoryRepository.findById(new CategoryId(username, categoryName));
         if(!optionalCategory.isPresent()) {
             return new ResponseEntity<>(String.format
-                    ("Category Name: %s not found. Send a valid request", categoryName), HttpStatus.NOT_FOUND);
+                    ("No entries found for username: %s and category: %s. Send a valid request",
+                            username, categoryName), HttpStatus.NOT_FOUND);
         }
 
         Category category = optionalCategory.get();
-        return new ResponseEntity<>(category, HttpStatus.OK);
+        return new ResponseEntity<>(new CategoryResponse(category.getUsername(), category.getCategoryName(),
+                category.getCategoryBudget()), HttpStatus.OK);
     }
 
-    @PostMapping("/category")
-    public ResponseEntity<?> createCategory(@RequestBody Category category) {
-        Optional<Category> optionalCategory = categoryRepository.findById(category.getCategoryName());
+    @PostMapping("{username}/category")
+    public ResponseEntity<?> createCategory(@PathVariable String username, @RequestBody CreateCategoryRequest createCategoryRequest) {
+        String categoryName = createCategoryRequest.getCategoryName();
+        BigDecimal categoryBudget = new BigDecimal(createCategoryRequest.getCategoryBudget());
+
+        Optional<Category> optionalCategory = categoryRepository.findById(new CategoryId(username, categoryName));
 
         if(optionalCategory.isPresent()) {
             return new ResponseEntity<>(String.format
-                    ("Category: %s already exists. Send a valid request", category.getCategoryName()), HttpStatus.CONFLICT);
+                    ("username: %s and category: %s already exists. Use update to update existing fields.",
+                            username, categoryName), HttpStatus.CONFLICT);
         }
 
-        Category result = categoryRepository.save(category);
+        Category result = categoryRepository.save(new Category(new CategoryId(username, categoryName), categoryBudget));
+
+        CategoryResponse categoryResponse = new CategoryResponse(result.getUsername(),
+                result.getCategoryName(), result.getCategoryBudget());
+        String url = String.format("/api/%s/category", username + categoryName);
+        url = encodeStringToUrl(url);
+
         try {
-            return ResponseEntity.created(new URI("/api/category" + category.getCategoryName())).body(result);
+            return ResponseEntity.created(new URI(url)).body(categoryResponse);
         } catch (URISyntaxException uriSyntaxException) {
             return new ResponseEntity<>("Was unable to create the category", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
 
-    @PutMapping("/category/{categoryName}")
-    public ResponseEntity<?> updateCategory(@PathVariable String categoryName, @RequestParam String budget) throws URISyntaxException {
-        Optional<Category> optionalCategory = categoryRepository.findById(categoryName);
+    @PutMapping("{username}/category/{categoryName}")
+    public ResponseEntity<?> updateCategory(@PathVariable String username, @PathVariable String categoryName,
+                                            @RequestParam String budget) throws URISyntaxException {
+        Optional<Category> optionalCategory = categoryRepository.findById(new CategoryId(username, categoryName));
 
         if(!optionalCategory.isPresent()) {
-            return new ResponseEntity<>(String.format("Category: %s not found. Send a valid request", categoryName), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(String.format("No entries found for username: %s and category: %s. " +
+                            "Send a valid request", username, categoryName), HttpStatus.NOT_FOUND);
         }
 
         Category category = optionalCategory.get();
@@ -83,28 +110,37 @@ public class CategoryController {
             BigDecimal budgetBD = new BigDecimal(budget);
             category.setCategoryBudget(budgetBD);
         } catch (NumberFormatException exception) {
-            return new ResponseEntity<>(String.format("Budget: %s not a valid number. Send a valid request", budget), HttpStatus.CONFLICT);
+            return new ResponseEntity<>(String.format("Budget: %s not a valid number. Send a valid request", budget),
+                    HttpStatus.CONFLICT);
         }
 
 
         Category result = categoryRepository.save(category);
-        return ResponseEntity.created(new URI("/api/category" + result.getCategoryName())).body(result);
+        CategoryResponse categoryResponse = new CategoryResponse(result.getUsername(),
+                result.getCategoryName(), result.getCategoryBudget());
+        String url = String.format("/api/%s/category/%s", username, result.getCategoryName());
+        url = encodeStringToUrl(url);
+        return ResponseEntity.created(new URI(url)).body(categoryResponse);
     }
 
-    @DeleteMapping("/category/{categoryName}")
-    public ResponseEntity<?> deleteCategory(@PathVariable String categoryName) {
-        Optional<Category> optionalCategory = categoryRepository.findById(categoryName);
+    @DeleteMapping("{username}/category/{categoryName}")
+    public ResponseEntity<?> deleteCategory(@PathVariable String username, @PathVariable String categoryName) {
+        Optional<Category> optionalCategory = categoryRepository.findById(new CategoryId(username, categoryName));
         if(!optionalCategory.isPresent()) {
-            return new ResponseEntity<>(String.format("Category: %s not found. Send a valid request", categoryName), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(String.format("No entries found for username: %s and category: %s. " +
+                            "Send a valid request", username, categoryName), HttpStatus.NOT_FOUND);
         }
 
         try {
-            categoryRepository.deleteById(categoryName);
+            categoryRepository.deleteById(new CategoryId(username, categoryName));
         } catch (DataIntegrityViolationException exception) {
             return new ResponseEntity<>("Category in use, Cannot be deleted", HttpStatus.CONFLICT);
         }
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(String.format("For username %s, category %s was deleted", username, categoryName),
+                HttpStatus.OK);
     }
 
-
+    private String encodeStringToUrl(String name) {
+        return name.toString().replace(" ", "+");
+    }
 }
