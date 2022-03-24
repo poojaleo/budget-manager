@@ -1,12 +1,16 @@
 Resources:
-  ExpenseTable:
+  ExpensesTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      "AttributeDefinitions":
-        - "AttributeName": "expenseId"
-          "AttributeType": "S"
-      "KeySchema":
-        - "AttributeName": "expenseId"
-          "KeyType": "HASH"
+      AttributeDefinitions:
+        - AttributeName: "username"
+          AttributeType: "S"
+        - AttributeName: "expenseId"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "username"
+          KeyType: "HASH"
+        - AttributeName: "expenseId"
+          KeyType: "RANGE"
       BillingMode: PAY_PER_REQUEST
-      TableName: "expense"
+      TableName: "expenses"

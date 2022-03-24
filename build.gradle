@@ -22,6 +22,7 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'com.amazonaws:aws-java-sdk-dynamodb:1.12.173'
+    implementation group: 'software.amazon.awssdk', name: 'dynamodb-enhanced', version: '2.17.153'
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
     implementation group: 'org.springframework.data', name: 'spring-data-releasetrain', version: 'Lovelace-SR1', ext: 'pom'
     implementation group: 'io.github.boostchicken', name: 'spring-data-dynamodb', version: '5.2.5'

@@ -91,7 +91,7 @@ public class DynamoDbRepository {
         DynamoDBSaveExpression saveExpression = new DynamoDBSaveExpression();
         Map<String, ExpectedAttributeValue> expectedAttributeValueMap = new HashMap<>();
         //Will throw exception if id not equal
-        expectedAttributeValueMap.put("expenseId", new ExpectedAttributeValue(new AttributeValue(expense.getExpenseId())))
+        expectedAttributeValueMap.put("expenseId", new ExpectedAttributeValue(new AttributeValue(expense.getExpenseKey())))
                 .withComparisonOperator(ComparisonOperator.EQ);
         saveExpression.setExpected(expectedAttributeValueMap);
         return saveExpression;

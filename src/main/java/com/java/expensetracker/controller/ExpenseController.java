@@ -3,9 +3,11 @@ package com.java.expensetracker.controller;
 import com.java.expensetracker.model.Category;
 import com.java.expensetracker.model.CategoryId;
 import com.java.expensetracker.model.Expense;
+import com.java.expensetracker.model.ExpenseKey;
 import com.java.expensetracker.repository.CategoryRepository;
 import com.java.expensetracker.repository.ExpenseRepository;
 import com.java.expensetracker.request.CreateExpenseRequest;
+import com.java.expensetracker.response.expense.ExpenseResponse;
 import com.java.expensetracker.utility.ExpenseTrackerUtility;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,67 +30,91 @@ public class ExpenseController {
         this.categoryRepository = categoryRepository;
     }
 
-    @GetMapping("/expense")
-    public ResponseEntity<Collection<Expense>> getAllExpenses() {
-        Iterable<Expense> expenseIterator = expenseRepository.findAll();
-        Collection<Expense> expenses = new ArrayList<>();
+    @GetMapping("{username}/expense")
+    public ResponseEntity<?> getAllExpenses(@PathVariable String username) {
+        Iterable<Expense> expenseIterator = expenseRepository.findByUsername(username);
+
+        if(((Collection<Expense>) expenseIterator).size() == 0) {
+            return new ResponseEntity<>(String.format
+                    ("Username: %s not found. Send a valid request", username), HttpStatus.NOT_FOUND);
+        }
+        Collection<ExpenseResponse> expenses = new ArrayList<>();
 
         for(Expense expense : expenseIterator) {
-            Optional<Category> optionalCategory = categoryRepository.findById(
-                    new CategoryId(expense.getCategory().getUsername(), expense.getCategory().getCategoryName()));
-            if(optionalCategory.isPresent()) {
-                Category category = optionalCategory.get();
-                expense.setCategory(category);
-            }
-            expenses.add(expense);
+
+            expenses.add(new ExpenseResponse(expense.getUsername(), expense.getExpenseId(), expense.getExpenseDate(),
+                    expense.getDescription(), expense.getAmount(), expense.getCategoryName(), expense.getMerchant()));
         }
 
         return new ResponseEntity<>(expenses, HttpStatus.OK);
     }
 
-    @GetMapping("/expense/{expenseId}")
-    public ResponseEntity<?> getExpense(@PathVariable String expenseId) {
-        Optional<Expense> optionalExpense = expenseRepository.findById(expenseId);
+    @GetMapping("{username}/expense/{expenseId}")
+    public ResponseEntity<?> getSpecificExpense(@PathVariable String username, @PathVariable String expenseId) {
+        Optional<Expense> optionalExpense = expenseRepository.findById(new ExpenseKey(username, expenseId));
 
         if(!optionalExpense.isPresent()) {
-            return new ResponseEntity<>(String.format("Id: %s not found. Send a valid request", expenseId), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(String.format("No entries found for username: %s and expenseId: %s. " +
+                    "Send a valid request",username, expenseId), HttpStatus.NOT_FOUND);
         }
 
         Expense expense = optionalExpense.get();
-        Optional<Category> optionalCategory = categoryRepository.findById(
-                new CategoryId(expense.getCategory().getUsername(), expense.getCategory().getCategoryName())
-        );
-        if(optionalCategory.isPresent()) {
-            Category category = optionalCategory.get();
-            expense.setCategory(category);
-        }
-        return new ResponseEntity<>(expense, HttpStatus.OK);
+
+        return new ResponseEntity<ExpenseResponse>(new ExpenseResponse(expense.getUsername(), expense.getExpenseId(),
+                expense.getExpenseDate(), expense.getDescription(), expense.getAmount(), expense.getCategoryName(),
+                expense.getMerchant()), HttpStatus.OK);
     }
 
-    @DeleteMapping("/expense/{id}")
+    @PostMapping("{username}/expense")
+    public ResponseEntity<?> createExpense(@PathVariable String username,
+                                           @RequestBody CreateExpenseRequest createExpenseRequest) {
+
+        Optional<Category> optionalCategory = categoryRepository.findById
+                (new CategoryId(username, createExpenseRequest.getCategoryName()));
+
+        if(!optionalCategory.isPresent()) {
+            return new ResponseEntity<>(String.format("Category %s does not exist. Please create a category first. ",
+                    createExpenseRequest.getCategoryName()), HttpStatus.NOT_FOUND);
+        }
+
+        String expenseId = ExpenseTrackerUtility.generateId();
+
+        Expense expense = new Expense(new ExpenseKey(username, expenseId), createExpenseRequest.getExpenseDate(),
+                createExpenseRequest.getDescription(), createExpenseRequest.getAmount(),
+                createExpenseRequest.getCategoryName(), createExpenseRequest.getMerchant());
+
+        Expense result = expenseRepository.save(expense);
+
+        ExpenseResponse expenseResponse = new ExpenseResponse(result.getUsername(), result.getExpenseId(),
+                result.getExpenseDate(), result.getDescription(), result.getAmount(),
+                result.getCategoryName(), result.getMerchant());
+
+        String url = String.format("/api/%s/expense", username + result.getExpenseId());
+        url = encodeStringToUrl(url);
+
+        try {
+            return ResponseEntity.created(new URI(url)).body(expenseResponse);
+        } catch (URISyntaxException uriSyntaxException) {
+            return new ResponseEntity<>("Was unable to create the expense", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /*@DeleteMapping("{username}/expense/{id}")
     public ResponseEntity<?> deleteExpense(@PathVariable String id) {
-        Optional<Expense> optionalExpense = this.expenseRepository.findById(id);
+        *//*Optional<Expense> optionalExpense = this.expenseRepository.findById(id);
         if(!optionalExpense.isPresent()) {
             return new ResponseEntity<>(String.format("Id: %s not found. Send a valid request", id), HttpStatus.NOT_FOUND);
         }
 
         expenseRepository.deleteById(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);*//*
+    }*/
+
+    private String encodeStringToUrl(String name) {
+        return name.toString().replace(" ", "+");
     }
 
-    @PostMapping("/expense")
-    public ResponseEntity<?> createExpense(@RequestBody CreateExpenseRequest expenseRequest) {
 
-        String id = ExpenseTrackerUtility.generateId();
-        Expense expense = new Expense(id, expenseRequest);
-
-        Expense result = expenseRepository.save(expense);
-        try {
-            return ResponseEntity.created(new URI("/api/expense/" + expense.getExpenseId())).body(result);
-        } catch (URISyntaxException uriSyntaxException) {
-            return new ResponseEntity<>("Was unable to create the expense", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
 
 
 }

@@ -1,21 +1,18 @@
-package com.java.expensetracker.request;
+package com.java.expensetracker.response.expense;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
 
-
-@RequiredArgsConstructor
 @Data
-public class CreateExpenseRequest {
-    @NonNull
+@AllArgsConstructor
+public class ExpenseResponse {
+    private String username;
+    private String expenseId;
     private String expenseDate;
     private String description;
-    @NonNull
     private BigDecimal amount;
-    @NonNull
     private String categoryName;
     private String merchant;
 }
