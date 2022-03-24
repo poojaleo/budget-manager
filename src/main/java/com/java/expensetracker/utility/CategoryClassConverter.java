@@ -14,12 +14,5 @@ public class CategoryClassConverter implements DynamoDBTypeConverter<String, Cat
     @Override
     public Category unconvert(String object) {
         return new Category(new CategoryId(null, object), null);
-
-        /*Optional<Category> optionalCategory = categoryController.getCategoryConversionMethod(object);
-
-        if(!optionalCategory.isPresent()) {
-            return null;
-        }
-        return optionalCategory.get();*/
     }
 }
