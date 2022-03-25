@@ -111,7 +111,7 @@ public class CategoryController {
             category.setCategoryBudget(budgetBD);
         } catch (NumberFormatException exception) {
             return new ResponseEntity<>(String.format("Budget: %s not a valid number. Send a valid request", budget),
-                    HttpStatus.CONFLICT);
+                    HttpStatus.BAD_REQUEST);
         }
 
 

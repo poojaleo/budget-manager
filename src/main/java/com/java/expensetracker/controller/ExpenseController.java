@@ -7,12 +7,14 @@ import com.java.expensetracker.model.ExpenseKey;
 import com.java.expensetracker.repository.CategoryRepository;
 import com.java.expensetracker.repository.ExpenseRepository;
 import com.java.expensetracker.request.CreateExpenseRequest;
+import com.java.expensetracker.request.UpdateExpenseRequest;
 import com.java.expensetracker.response.expense.ExpenseResponse;
 import com.java.expensetracker.utility.ExpenseTrackerUtility;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -74,7 +76,7 @@ public class ExpenseController {
 
         if(!optionalCategory.isPresent()) {
             return new ResponseEntity<>(String.format("Category %s does not exist. Please create a category first. ",
-                    createExpenseRequest.getCategoryName()), HttpStatus.NOT_FOUND);
+                    createExpenseRequest.getCategoryName()), HttpStatus.BAD_REQUEST);
         }
 
         String expenseId = ExpenseTrackerUtility.generateId();
@@ -85,11 +87,88 @@ public class ExpenseController {
 
         Expense result = expenseRepository.save(expense);
 
+        return returnExpenseResponse(result);
+    }
+
+    @PutMapping("{username}/expense/{expenseId}")
+    public ResponseEntity<?> updateExpense(@PathVariable String username, @PathVariable String expenseId,
+                                           @RequestBody UpdateExpenseRequest updateExpenseRequest) {
+        if(updateExpenseRequest.getCategoryName() != null) {
+            Optional<Category> optionalCategory = categoryRepository.findById
+                    (new CategoryId(username, updateExpenseRequest.getCategoryName()));
+
+            if(!optionalCategory.isPresent()) {
+                return new ResponseEntity<>(String.format("Category %s does not exist. Please create a category first. ",
+                        updateExpenseRequest.getCategoryName()), HttpStatus.BAD_REQUEST);
+            }
+        }
+
+
+        Optional<Expense> optionalExpense = expenseRepository.findById(new ExpenseKey(username, expenseId));
+
+        if(!optionalExpense.isPresent()) {
+            return new ResponseEntity<>(String.format("No entries found for username: %s and expenseId: %s. " +
+                    "Send a valid request", username, expenseId), HttpStatus.NOT_FOUND);
+        }
+
+        Expense expense = optionalExpense.get();
+
+        if(updateExpenseRequest.getExpenseDate() != null &&
+                !(updateExpenseRequest.getExpenseDate().equals(expense.getExpenseDate()))) {
+            if(updateExpenseRequest.getExpenseDate().isEmpty()) {
+                return new ResponseEntity<>("Date field cannot be empty", HttpStatus.BAD_REQUEST);
+            }
+            expense.setExpenseDate(updateExpenseRequest.getExpenseDate());
+        }
+
+        if(updateExpenseRequest.getDescription() != null &&
+                !(updateExpenseRequest.getDescription().equals(expense.getDescription()))) {
+            expense.setDescription(updateExpenseRequest.getDescription());
+        }
+
+        if(updateExpenseRequest.getAmount() != null &&
+                !(updateExpenseRequest.getAmount().equals(expense.getAmount()))) {
+            if(updateExpenseRequest.getAmount().compareTo(BigDecimal.ZERO) == 0) {
+                return new ResponseEntity<>("Expense cannot be zero", HttpStatus.BAD_REQUEST);
+            }
+            expense.setAmount(updateExpenseRequest.getAmount());
+        }
+
+        if(updateExpenseRequest.getCategoryName() != null &&
+                !(updateExpenseRequest.getCategoryName().equals(expense.getCategoryName()))) {
+            expense.setCategoryName(updateExpenseRequest.getCategoryName());
+        }
+
+        if(updateExpenseRequest.getMerchant() != null &&
+                !(updateExpenseRequest.getMerchant().equals(expense.getMerchant()))) {
+            expense.setMerchant(updateExpenseRequest.getMerchant());
+        }
+
+        Expense result = expenseRepository.save(expense);
+        return returnExpenseResponse(result);
+
+    }
+
+    @DeleteMapping("{username}/expense/{expenseId}")
+    public ResponseEntity<?> deleteExpense(@PathVariable String username, @PathVariable String expenseId) {
+        Optional<Expense> optionalExpense = this.expenseRepository.findById(new ExpenseKey(username, expenseId));
+
+        if(!optionalExpense.isPresent()) {
+            return new ResponseEntity<>(String.format("No entries found for username: %s and expenseId: %s. " +
+                    "Send a valid request",username, expenseId), HttpStatus.NOT_FOUND);
+        }
+
+        expenseRepository.deleteById(new ExpenseKey(username, expenseId));
+        return new ResponseEntity<>(String.format("Expense for user: %s and Expense id: %s was deleted",
+                username, expenseId), HttpStatus.OK);
+    }
+
+    private ResponseEntity<?> returnExpenseResponse(Expense result) {
         ExpenseResponse expenseResponse = new ExpenseResponse(result.getUsername(), result.getExpenseId(),
                 result.getExpenseDate(), result.getDescription(), result.getAmount(),
                 result.getCategoryName(), result.getMerchant());
 
-        String url = String.format("/api/%s/expense", username + result.getExpenseId());
+        String url = String.format("/api/%s/expense", result.getUsername() + result.getExpenseId());
         url = encodeStringToUrl(url);
 
         try {
@@ -99,22 +178,8 @@ public class ExpenseController {
         }
     }
 
-    /*@DeleteMapping("{username}/expense/{id}")
-    public ResponseEntity<?> deleteExpense(@PathVariable String id) {
-        *//*Optional<Expense> optionalExpense = this.expenseRepository.findById(id);
-        if(!optionalExpense.isPresent()) {
-            return new ResponseEntity<>(String.format("Id: %s not found. Send a valid request", id), HttpStatus.NOT_FOUND);
-        }
-
-        expenseRepository.deleteById(id);
-        return new ResponseEntity<>(HttpStatus.OK);*//*
-    }*/
-
     private String encodeStringToUrl(String name) {
-        return name.toString().replace(" ", "+");
+        return name.replace(" ", "+");
     }
-
-
-
 
 }
