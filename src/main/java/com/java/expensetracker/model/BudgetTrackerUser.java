@@ -13,7 +13,7 @@ import java.sql.Timestamp;
 @Data
 @Setter
 @DynamoDBTable(tableName = "users")
-public class BudgetTrackerUsers {
+public class BudgetTrackerUser {
     @NonNull
     @NotEmpty
     @Id
