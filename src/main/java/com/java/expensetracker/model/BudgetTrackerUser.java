@@ -6,7 +6,6 @@ import org.springframework.data.annotation.Id;
 
 import javax.validation.constraints.NotEmpty;
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 
 @NoArgsConstructor
 @RequiredArgsConstructor
@@ -29,7 +28,7 @@ public class BudgetTrackerUser {
     private String password;
     private BigDecimal monthlyIncome;
     private BigDecimal monthlyBudget;
-    private Timestamp createdAt;
+    private String createdAt;
 
 
     @DynamoDBHashKey(attributeName = "username")
@@ -64,9 +63,10 @@ public class BudgetTrackerUser {
         return monthlyBudget;
     }
 
-    @DynamoDBTypeConvertedTimestamp
+    //@DynamoDBTypeConvertedTimestamp
+   // @DynamoDBTypeConverted(converter = DateTimeClassConverter.class)
     @DynamoDBAttribute
-    public Timestamp getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 }

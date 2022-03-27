@@ -1,16 +1,23 @@
 package com.java.expensetracker.controller;
 
+import com.java.expensetracker.InvalidUserException;
 import com.java.expensetracker.model.BudgetTrackerUser;
 import com.java.expensetracker.repository.UserRepository;
 import com.java.expensetracker.request.CreateUserRequest;
+import com.java.expensetracker.request.UpdateUserRequest;
+import com.java.expensetracker.request.UserRequest;
+import com.java.expensetracker.response.budgettrackeruser.AllUserResponse;
 import com.java.expensetracker.response.budgettrackeruser.UserResponse;
 import com.java.expensetracker.utility.ExpenseTrackerUtility;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Optional;
 
 @RestController
@@ -22,8 +29,26 @@ public class UserController {
         this.userRepository = userRepository;
     }
 
+    @GetMapping
+    public ResponseEntity<?> getAllUsers() {
+        Iterable<BudgetTrackerUser> budgetTrackerUserIterable = userRepository.findAll();
+
+        if(((Collection<BudgetTrackerUser>) budgetTrackerUserIterable).size() == 0) {
+            return new ResponseEntity<>("No Users in the database", HttpStatus.OK);
+        }
+
+        Collection<AllUserResponse> budgetTrackerUsers = new ArrayList<>();
+
+        for(BudgetTrackerUser budgetTrackerUser : budgetTrackerUserIterable) {
+            budgetTrackerUsers.add(new AllUserResponse(budgetTrackerUser.getFullName(),
+                    budgetTrackerUser.getEmailAddress(), budgetTrackerUser.getCreatedAt()));
+        }
+
+        return new ResponseEntity<>(budgetTrackerUsers, HttpStatus.OK);
+    }
+
     @GetMapping("{username}")
-    public ResponseEntity<?> getUser(@PathVariable String username, @RequestParam(required = true) String password) {
+    public ResponseEntity<?> getUser(@PathVariable String username, @RequestParam String password) {
         Optional<BudgetTrackerUser> optionalBudgetTrackerUser = userRepository.findById(username);
 
         if(!optionalBudgetTrackerUser.isPresent()) {
@@ -54,56 +79,122 @@ public class UserController {
 
         Optional<BudgetTrackerUser> budgetTrackerUserEmailCheck = userRepository.findByEmailAddress(createUserRequest.getEmailAddress());
 
-        if(budgetTrackerUserOptional.isPresent()) {
+        if(budgetTrackerUserEmailCheck.isPresent()) {
             return new ResponseEntity<>(String.format("Email Address: %s already exists",
                     createUserRequest.getEmailAddress()), HttpStatus.BAD_REQUEST);
         }
         BudgetTrackerUser budgetTrackerUser = new BudgetTrackerUser();
-        boolean isValidUsername = ExpenseTrackerUtility.isValidString(createUserRequest.getUsername());
-        if(isValidUsername) {
-            budgetTrackerUser.setUsername(createUserRequest.getUsername());
-        } else {
-            return new ResponseEntity<>(String.format("Invalid username: %s pattern",
-                    createUserRequest.getUsername()), HttpStatus.BAD_REQUEST);
+
+        try {
+            budgetTrackerUser = createOrUpdateUser(budgetTrackerUser, createUserRequest, createUserRequest.getUsername());
+        } catch (InvalidUserException invalidUserException) {
+            return new ResponseEntity<>(invalidUserException.getMessage(), HttpStatus.BAD_REQUEST);
         }
-        boolean isValidFullName = ExpenseTrackerUtility.isValidString(createUserRequest.getFullName());
-        if(isValidFullName) {
-            budgetTrackerUser.setFullName(createUserRequest.getFullName());
-        } else {
-            return new ResponseEntity<>(String.format("Invalid name: %s pattern",
-                    createUserRequest.getFullName()), HttpStatus.BAD_REQUEST);
+
+        budgetTrackerUser.setCreatedAt(new Timestamp(System.currentTimeMillis()).toString());
+
+        BudgetTrackerUser result = userRepository.save(budgetTrackerUser);
+
+        UserResponse userResponse = new UserResponse(result.getUsername(), result.getFullName(), result.getEmailAddress(),
+                result.getMonthlyIncome(), result.getMonthlyBudget(), result.getCreatedAt());
+
+        String url = "/api" + createUserRequest.getUsername();
+        url = encodeStringToUrl(url);
+
+        try {
+            return ResponseEntity.created(new URI(url)).body(userResponse);
+        } catch (URISyntaxException uriSyntaxException) {
+            return new ResponseEntity<>("Was unable to create the user", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        boolean isValidEmailAddress = ExpenseTrackerUtility.isValidEmailAddress(createUserRequest.getEmailAddress());
-        if(isValidEmailAddress) {
-            budgetTrackerUser.setEmailAddress(createUserRequest.getEmailAddress());
-        } else {
-            return new ResponseEntity<>(String.format("Invalid Email Address: %s",
-                    createUserRequest.getEmailAddress()), HttpStatus.BAD_REQUEST);
-        }
-        boolean isValidPassword = ExpenseTrackerUtility.isValidPassword(createUserRequest.getPassword());
-        if(isValidPassword) {
-            budgetTrackerUser.setPassword(createUserRequest.getPassword());
-        } else {
-            return new ResponseEntity<>("Invalid Password. Password should contain minimum eight characters, " +
-                    "at least one uppercase letter, one lowercase letter, one number and one special character",
+
+    }
+
+    @PutMapping("{username}")
+    public ResponseEntity<?> updateUser(@PathVariable String username,
+                                        @RequestBody UpdateUserRequest updateUserRequest) {
+
+        Optional<BudgetTrackerUser> budgetTrackerUserOptional = userRepository.findById(username);
+
+        if(!budgetTrackerUserOptional.isPresent()) {
+            return new ResponseEntity<>(String.format("Username: %s does not exists", username),
                     HttpStatus.BAD_REQUEST);
         }
 
+        BudgetTrackerUser budgetTrackerUser = budgetTrackerUserOptional.get();
 
-        /*
-        private BigDecimal monthlyIncome;
-        private BigDecimal monthlyBudget;
-        private Timestamp createdAt;*/
-
-        if(!createUserRequest.getMonthlyIncome().equals(null)) {
-            budgetTrackerUser.setMonthlyIncome(createUserRequest.getMonthlyIncome());
-        }
-        if(!createUserRequest.getMonthlyBudget().equals(null)) {
-            budgetTrackerUser.setMonthlyBudget(createUserRequest.getMonthlyBudget());
+        try {
+            budgetTrackerUser = createOrUpdateUser(budgetTrackerUser, updateUserRequest, username);
+        } catch (InvalidUserException invalidUserException) {
+            return new ResponseEntity<>(invalidUserException.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
-        budgetTrackerUser.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+        BudgetTrackerUser result = userRepository.save(budgetTrackerUser);
 
+        UserResponse userResponse = new UserResponse(result.getUsername(), result.getFullName(), result.getEmailAddress(),
+                result.getMonthlyIncome(), result.getMonthlyBudget(), result.getCreatedAt());
+
+        String url = "/api" + username;
+        url = encodeStringToUrl(url);
+
+        try {
+            return ResponseEntity.created(new URI(url)).body(userResponse);
+        } catch (URISyntaxException uriSyntaxException) {
+            return new ResponseEntity<>("Was unable to create the user", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+    private String encodeStringToUrl(String name) {
+        return name.replace(" ", "+");
+    }
+
+    public BudgetTrackerUser createOrUpdateUser(BudgetTrackerUser budgetTrackerUser, UserRequest request,
+                                                String username) throws InvalidUserException {
+        if(request instanceof CreateUserRequest) {
+            boolean isValidUsername = ExpenseTrackerUtility.isValidString(username);
+            if(isValidUsername) {
+                budgetTrackerUser.setUsername(username);
+            } else {
+                throw new InvalidUserException(String.format("Invalid username: %s pattern", username));
+            }
+        }
+
+        if(request.getFullName() != null) {
+            boolean isValidFullName = ExpenseTrackerUtility.isValidString(request.getFullName());
+            if(isValidFullName) {
+                budgetTrackerUser.setFullName(request.getFullName());
+            } else {
+                throw new InvalidUserException(String.format("Invalid name: %s pattern", request.getFullName()));
+            }
+        }
+
+        if(request.getEmailAddress() != null) {
+            boolean isValidEmailAddress = ExpenseTrackerUtility.isValidEmailAddress(request.getEmailAddress());
+            if(isValidEmailAddress) {
+                budgetTrackerUser.setEmailAddress(request.getEmailAddress());
+            } else {
+                throw new InvalidUserException(String.format("Invalid Email Address: %s", request.getEmailAddress()));
+            }
+        }
+
+        if(request.getPassword() != null) {
+            boolean isValidPassword = ExpenseTrackerUtility.isValidPassword(request.getPassword());
+            if(isValidPassword) {
+                budgetTrackerUser.setPassword(request.getPassword());
+            } else {
+                throw new InvalidUserException("Invalid Password. Password should contain minimum eight characters, " +
+                        "at least one uppercase letter, one lowercase letter, one number and one special character");
+            }
+        }
+
+        if(request.getMonthlyIncome() != null) {
+            budgetTrackerUser.setMonthlyIncome(request.getMonthlyIncome());
+        }
+        if(request.getMonthlyBudget() != null) {
+            budgetTrackerUser.setMonthlyBudget(request.getMonthlyBudget());
+        }
+
+        return budgetTrackerUser;
     }
 
 
