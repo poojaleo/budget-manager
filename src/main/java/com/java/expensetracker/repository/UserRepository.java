@@ -11,4 +11,5 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends CrudRepository<BudgetTrackerUser, String> {
     Optional<BudgetTrackerUser> findByEmailAddress(String emailAddress);
+    BudgetTrackerUser findByUsername(String username);
 }
