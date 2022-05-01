@@ -11,5 +11,4 @@ import lombok.RequiredArgsConstructor;
 public class CreateUserRequest extends UserRequest {
     @NonNull
     private String username;
-
 }

@@ -1,7 +1,7 @@
 package com.java.expensetracker.controller;
 
 
-import com.java.expensetracker.InvalidUserException;
+import com.java.expensetracker.exception.InvalidUserException;
 import com.java.expensetracker.request.LoginRequest;
 import com.java.expensetracker.response.LoginResponse;
 import com.java.expensetracker.security.jwt.JwtTokenProvider;

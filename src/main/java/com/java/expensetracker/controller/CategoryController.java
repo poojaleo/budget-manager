@@ -37,19 +37,23 @@ public class CategoryController {
 
     @GetMapping("{username}/category")
     public ResponseEntity<?> categories(@PathVariable String username) {
-        Iterable<Category> categoryIterable = categoryRepository.findByUsername(username);
+        try {
+            Iterable<Category> categoryIterable = categoryRepository.findByUsername(username);
 
-        if(((Collection<Category>) categoryIterable).size() == 0) {
-            return new ResponseEntity<>(String.format
-                    ("Username: %s not found. Send a valid request", username), HttpStatus.NOT_FOUND);
+            if(((Collection<Category>) categoryIterable).size() == 0) {
+                return new ResponseEntity<>(String.format
+                        ("Username: %s not found. Send a valid request", username), HttpStatus.NOT_FOUND);
+            }
+            Collection<CategoryResponse> categories = new ArrayList<>();
+
+            for(Category category : categoryIterable) {
+                categories.add(new CategoryResponse(category.getUsername(), category.getCategoryName(), category.getCategoryBudget()));
+            }
+
+            return new ResponseEntity<>(categories, HttpStatus.OK);
+        } catch (Exception exception) {
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
         }
-        Collection<CategoryResponse> categories = new ArrayList<>();
-
-        for(Category category : categoryIterable) {
-            categories.add(new CategoryResponse(category.getUsername(), category.getCategoryName(), category.getCategoryBudget()));
-        }
-
-        return new ResponseEntity<>(categories, HttpStatus.OK);
     }
 
     @GetMapping("{username}/category/{categoryName}")

@@ -1,4 +1,4 @@
-/*package com.java.expensetracker.security.jwt;
+package com.java.expensetracker.security.jwt;
 
 import com.java.expensetracker.security.service.UserDetailsImplementation;
 import org.slf4j.Logger;
@@ -8,7 +8,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -30,47 +29,32 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     }
 
     @Override
-    public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        try {
-            String jwt = parseJwt(request);
-            if(jwt != null && jwtTokenProvider.validateJwtToken(jwt)) {
-                String username = jwtTokenProvider.getUsername(jwt);
+        final String authorizationHeader = request.getHeader("Authorization");
 
-                UserDetails userDetails = userDetailsImplementation.loadUserByUsername(username);
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities());
+        String username = null;
+        String jwt = null;
 
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            }
-        } catch (Exception e) {
-            try {
-                logger.error("Cannot set user authentication: {}", e);
-                SecurityContextHolder.clearContext();
-                response.setContentType("application/json");
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().println("exception, expired token");
-
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
-            return;
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            jwt = authorizationHeader.substring(7);
+            username = jwtTokenProvider.extractUsername(jwt);
         }
 
-        filterChain.doFilter(request, response);
-    }
 
-    private String parseJwt(HttpServletRequest request) {
-        String headerAuth = request.getHeader("Authorization");
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-        if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
-            return headerAuth.substring(7);
+            UserDetails userDetails = this.userDetailsImplementation.loadUserByUsername(username);
+
+            if (jwtTokenProvider.validateToken(jwt, userDetails)) {
+
+                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
+                usernamePasswordAuthenticationToken
+                        .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+            }
         }
-
-        return null;
+        chain.doFilter(request, response);
     }
-}*/
+}

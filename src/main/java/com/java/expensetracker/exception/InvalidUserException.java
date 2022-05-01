@@ -1,4 +1,4 @@
-package com.java.expensetracker;
+package com.java.expensetracker.exception;
 
 public class InvalidUserException extends RuntimeException {
     private static final long serialVersionUID = -7490254703386969537L;

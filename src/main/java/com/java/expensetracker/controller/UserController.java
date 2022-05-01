@@ -1,6 +1,6 @@
 package com.java.expensetracker.controller;
 
-import com.java.expensetracker.InvalidUserException;
+import com.java.expensetracker.exception.InvalidUserException;
 import com.java.expensetracker.model.BudgetTrackerUser;
 import com.java.expensetracker.repository.UserRepository;
 import com.java.expensetracker.request.CreateUserRequest;
@@ -47,7 +47,7 @@ public class UserController {
         return new ResponseEntity<>(budgetTrackerUsers, HttpStatus.OK);
     }
 
-    @GetMapping("{username}")
+    /*@GetMapping("{username}")
     public ResponseEntity<?> getUser(@PathVariable String username, @RequestParam String password) {
         Optional<BudgetTrackerUser> optionalBudgetTrackerUser = userRepository.findById(username);
 
@@ -66,7 +66,7 @@ public class UserController {
                 budgetTrackerUser.getMonthlyBudget(), budgetTrackerUser.getCreatedAt());
 
         return new ResponseEntity<>(userResponse, HttpStatus.OK);
-    }
+    }*/
 
     @PostMapping
     public ResponseEntity<?> createUser(@RequestBody CreateUserRequest createUserRequest) {
