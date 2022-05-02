@@ -11,4 +11,9 @@ import lombok.RequiredArgsConstructor;
 public class CreateUserRequest extends UserRequest {
     @NonNull
     private String username;
+
+    public CreateUserRequest(String username, String password, String emailAddress) {
+        super(password, emailAddress);
+        this.username = username;
+    }
 }
