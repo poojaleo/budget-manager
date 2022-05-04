@@ -4,7 +4,8 @@ import {useNavigate} from "react-router-dom";
 import authService from "../../services/auth.service";
 import axios from 'axios';
 import "./login.css";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import SignupButton from "../NavBar/SignupButton";
+
 
 //const baseURL = "http://localhost:8080/api/auth";
 
@@ -12,6 +13,7 @@ const Login = (props) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [validPassword, setValidPassword] = useState(false);
+    const [message, setMessage] = useState('');
     const navigate = useNavigate();
 
     const handleUsernameChange = (event) => {
@@ -53,6 +55,7 @@ const Login = (props) => {
         }).catch(error => {
            // console.log('Error: ' + error.toJSON())
             console.log(error.message);
+            setMessage(error.message);
         })
     }
 
@@ -84,6 +87,13 @@ const Login = (props) => {
                        </FormGroup>
                        <Button>Login</Button>
                    </Form>
+                   <div>
+                       {message}
+                   </div>
+                   <div className={"noAccount"}>
+                       <h6>Do not have an account. <SignupButton />
+                       </h6>
+                   </div>
            </div>
 
         </div>

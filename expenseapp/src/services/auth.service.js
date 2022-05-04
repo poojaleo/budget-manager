@@ -20,6 +20,26 @@ class AuthService {
         sessionStorage.setItem('jwtToken', token);
     }
 
+    setTotalBudget(budget) {
+        sessionStorage.setItem('budget', budget);
+    }
+
+    getTotalBudget() {
+        return sessionStorage.getItem('budget');
+    }
+
+    setAllCategories(allCategories) {
+        sessionStorage.setItem('allCategories', allCategories);
+    }
+
+    getCategoryBudget(categoryName) {
+        const all = sessionStorage.getItem("allCategories");
+        console.log(all);
+        return all.filter(e => {
+            return e.categoryName == categoryName
+        });
+    }
+
     resetUserSession() {
         sessionStorage.removeItem('user');
         sessionStorage.removeItem('jwtToken');

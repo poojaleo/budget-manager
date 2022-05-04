@@ -4,6 +4,7 @@ import com.java.expensetracker.model.Category;
 import com.java.expensetracker.model.CategoryId;
 import com.java.expensetracker.repository.CategoryRepository;
 import com.java.expensetracker.request.CreateCategoryRequest;
+import com.java.expensetracker.request.UpdateCategoryRequest;
 import com.java.expensetracker.response.category.CategoryResponse;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -100,7 +101,7 @@ public class CategoryController {
 
     @PutMapping("{username}/category/{categoryName}")
     public ResponseEntity<?> updateCategory(@PathVariable String username, @PathVariable String categoryName,
-                                            @RequestParam String budget) throws URISyntaxException {
+                                            @RequestBody UpdateCategoryRequest updateCategoryRequest) throws URISyntaxException {
         Optional<Category> optionalCategory = categoryRepository.findById(new CategoryId(username, categoryName));
 
         if(!optionalCategory.isPresent()) {
@@ -111,13 +112,12 @@ public class CategoryController {
         Category category = optionalCategory.get();
 
         try {
-            BigDecimal budgetBD = new BigDecimal(budget);
+            BigDecimal budgetBD = new BigDecimal(updateCategoryRequest.getBudget());
             category.setCategoryBudget(budgetBD);
         } catch (NumberFormatException exception) {
-            return new ResponseEntity<>(String.format("Budget: %s not a valid number. Send a valid request", budget),
+            return new ResponseEntity<>(String.format("Budget: %s not a valid number. Send a valid request", updateCategoryRequest.getBudget()),
                     HttpStatus.BAD_REQUEST);
         }
-
 
         Category result = categoryRepository.save(category);
         CategoryResponse categoryResponse = new CategoryResponse(result.getUsername(),

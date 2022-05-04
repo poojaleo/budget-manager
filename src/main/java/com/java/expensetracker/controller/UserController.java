@@ -50,8 +50,8 @@ public class UserController {
         return new ResponseEntity<>(budgetTrackerUsers, HttpStatus.OK);
     }
 
-    /*@GetMapping("{username}")
-    public ResponseEntity<?> getUser(@PathVariable String username, @RequestParam String password) {
+    @GetMapping("{username}")
+    public ResponseEntity<?> getUser(@PathVariable String username) {
         Optional<BudgetTrackerUser> optionalBudgetTrackerUser = userRepository.findById(username);
 
         if(!optionalBudgetTrackerUser.isPresent()) {
@@ -60,16 +60,12 @@ public class UserController {
 
         BudgetTrackerUser budgetTrackerUser = optionalBudgetTrackerUser.get();
 
-        if(!budgetTrackerUser.getPassword().equals(password)) {
-            return new ResponseEntity<>("Incorrect password", HttpStatus.BAD_REQUEST);
-        }
-
         UserResponse userResponse = new UserResponse(budgetTrackerUser.getUsername(), budgetTrackerUser.getFullName(),
                 budgetTrackerUser.getEmailAddress(), budgetTrackerUser.getMonthlyIncome(),
                 budgetTrackerUser.getMonthlyBudget(), budgetTrackerUser.getCreatedAt());
 
         return new ResponseEntity<>(userResponse, HttpStatus.OK);
-    }*/
+    }
 
     @PostMapping("/auth/signup")
     public ResponseEntity<?> createUser(@RequestBody CreateUserRequest createUserRequest) {

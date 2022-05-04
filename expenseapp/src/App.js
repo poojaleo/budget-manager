@@ -4,7 +4,10 @@ import Home from "./components/Profile/home";
 import Login from "./components/Profile/login";
 import Signup from "./components/Profile/signup";
 import Profile from "./components/Profile/profile";
+import Category from "./components/Category/Category";
 import AuthService from "./services/auth.service";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Expense from "./components/Expense/Expense";
 
 function App() {
 
@@ -17,10 +20,6 @@ function App() {
 
     const tokenAuthState = () => {
         const token = AuthService.getToken();
-        const requestBody = {
-            "username": AuthService.getCurrentUser(),
-            "jwtToken": token
-        }
 
         if(token == undefined || token == null) {
             setAuthentication(false);
@@ -40,6 +39,8 @@ function App() {
                 <Route path={"/login"} element={<Login authenticate = {() => tokenAuthState()} />} />
                 <Route path={"/signup"} element={<Signup />} />
                 <Route path={"/profile"} element={<Profile />} />
+                <Route path={"/categories"} element={<Category />} />
+                <Route path={"/expenses"} element={<Expense />} />
             </Routes>
 
         </div>

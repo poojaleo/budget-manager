@@ -14,3 +14,11 @@
 label {
     font-weight: 600;
 }
+
+.noAccount {
+    padding: 1em;
+}
+
+.noAccount Button {
+    margin: 5px 0;
+}

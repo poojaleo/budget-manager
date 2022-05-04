@@ -1,0 +1,14 @@
+.profileHeader {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-content: center;
+}
+
+.profileHeader h2 {
+    margin: 15px;
+}
+
+.buttons .manage-buttons {
+    margin: 10px;
+}
