@@ -34,13 +34,29 @@ function App() {
     return (
         <div>
             <Routes>
-                <Route path={"/"} element={<Home/>} />
-                <Route path={"/home"} element={<Home />} />
-                <Route path={"/login"} element={<Login authenticate = {() => tokenAuthState()} />} />
-                <Route path={"/signup"} element={<Signup />} />
-                <Route path={"/profile"} element={<Profile />} />
-                <Route path={"/categories"} element={<Category />} />
-                <Route path={"/expenses"} element={<Expense />} />
+                {isTokenSet && (
+                    <>
+                        <Route path={"/"} element={<Home/>} />
+                        <Route path={"/home"} element={<Home />} />
+                        <Route path={"/login"} element={<Login authenticate = {() => tokenAuthState()} />} />
+                        <Route path={"/signup"} element={<Signup />} />
+                        <Route path={"/profile"} element={<Profile />} />
+                        <Route path={"/categories"} element={<Category />} />
+                        <Route path={"/expenses"} element={<Expense />} />
+                    </>
+                )}
+
+                {!isTokenSet && (
+                    <>
+                        <Route path={"/"} element={<Home/>} />
+                        <Route path={"/home"} element={<Home />} />
+                        <Route path={"/login"} element={<Login authenticate = {() => tokenAuthState()} />} />
+                        <Route path={"/signup"} element={<Signup />} />
+                        <Route path={"/profile"} element={<Home />} />
+                        <Route path={"/categories"} element={<Home />} />
+                        <Route path={"/expenses"} element={<Home />} />
+                    </>
+                )}
             </Routes>
 
         </div>

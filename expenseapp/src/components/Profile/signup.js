@@ -12,6 +12,7 @@ const Signup = (props) => {
     const [validPassword, setValidPassword] = useState(false);
     const [validEmail, setValidEmail] = useState(false);
     const [signupSuccessful, setSignup] = useState(false);
+    const [message, setMessage] = useState('');
     const navigate = useNavigate();
 
     const handleUsernameChange = (event) => {
@@ -80,6 +81,7 @@ const Signup = (props) => {
 
     const handleFormSubmit = (event) => {
         event.preventDefault();
+        setMessage("");
         const requestBody = {
             "username": username,
             "password": password,
@@ -93,6 +95,7 @@ const Signup = (props) => {
             // console.log('Error: ' + error.toJSON())
             setSignup(false);
             console.log(error.message);
+            setMessage("Looks like username or email already exists ");
         })
     }
 
@@ -102,50 +105,47 @@ const Signup = (props) => {
                 <h4>Register</h4>
                 <Form className={"form"} onSubmit={handleFormSubmit}>
                     <FormGroup>
-                        <Label htmlFor={"username"}>Username</Label>
+                        <Label htmlFor={"username"}>Username*</Label>
                         <Input type={"text"} name={"username"} id={"username"} value={username}
                                onChange={handleUsernameChange}/>
                     </FormGroup>
                     <FormGroup>
-                        <Label htmlFor={"password"}>Password</Label>
+                        <Label htmlFor={"password"}>Password*</Label>
                         <Input type={"password"} name={"password"} id={"password"} value={password}
                                valid={validPassword}
                                invalid={!validPassword}
                                onChange={handlePasswordChange}
                         />
-                        <FormFeedback>
-                            Uh oh! Looks like there is an issue with your password.
-                        </FormFeedback>
                         <FormFeedback valid>
-                            That's a tasty looking password you've got there.
+                            Password meets the requirements.
                         </FormFeedback>
-                        <FormText>Your password needs to be blah blah.</FormText>
+                        <FormText>Your password needs to be minimum 8 characters, 1 uppercase, 1 lowercase and 1 special character.</FormText>
                     </FormGroup>
                     <FormGroup>
-                        <Label htmlFor={"email"}>Email</Label>
+                        <Label htmlFor={"email"}>Email*</Label>
                         <Input type={"email"} name={"email"} id={"email"} value={email}
                                valid={validEmail}
                                invalid={!validEmail}
                                onChange={handleEmailChange}
                         />
-                        <FormFeedback>
-                            Uh oh! Looks like there is an issue with your Email!
-                        </FormFeedback>
-                        <FormFeedback valid>
-                            That's a tasty looking email you've got there.
-                        </FormFeedback>
+
                     </FormGroup>
                     <Button>Signup</Button>
                 </Form>
+                <div>
+                    {message}
+                </div>
                 <div className={"noAccount"}>
                     <h6>Already have an account. <LoginButton />
                     </h6>
                 </div>
             </div>
+
             <div>
             {signupSuccessful ? (
-                    <div>
+                    <div className={"text-center"}>
                         <h4>{username} successfully registered!!</h4>
+                        <h6>Go to the Login page to login</h6>
                         <LoginButton />
                     </div>
                 ) :

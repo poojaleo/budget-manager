@@ -9,6 +9,8 @@ import CategoryButton from "../Category/CategoryButton";
 import {Button} from "reactstrap";
 import CreateExpenseModal from "./CreateExpenseModal";
 import ViewExpenseModal from "./ViewExpenseModal";
+import SignoutButton from "../NavBar/SignoutButton";
+import ExpenseButton from "./ExpenseButton";
 
 const Expense = (props) => {
     const [username, setUsername] = useState('');
@@ -121,7 +123,7 @@ const Expense = (props) => {
         return (
             <div>
                 {ExpenseCard(catName,expenses,categoryTotalBudget,
-                    (event) => openAddExpenseModal(event, catName), (event) => openViewExpenseModal(event, catName) )}
+                    (event) => openAddExpenseModal(event, catName), (event) => openViewExpenseModal(event, catName), true )}
             </div>
         )
 
@@ -134,7 +136,7 @@ const Expense = (props) => {
         return (
             <div>
                 {ExpenseCard("All Expenses", sum, AuthService.getTotalBudget(),
-                    (event) => event.preventDefault(), (event) => event.preventDefault() )}
+                    (event) => event.preventDefault(), (event) => event.preventDefault(), false )}
             </div>
         )
     }
@@ -146,26 +148,34 @@ const Expense = (props) => {
                 <Stack direction={"vertical"}>
                     <h2 className={"me-auto"}>Expenses</h2>
                     <h6>Hi {username}, Below is an overview of your expenses.</h6>
-                </Stack>
-                <div className={"buttons"}>
-                    <div className={"manage-buttons"}>
-                        <ProfileButton />
-                    </div>
-                    <div className={"manage-buttons"}>
-                        <CategoryButton />
-                    </div>
-                    <div className={"manage-buttons"}>
+                    <div>
                         <Button color={"info"} onClick={openAddExpenseModalAllCategories}>Add Expense</Button>
                     </div>
-
-                </div>
+                </Stack>
+                <Stack direction={"vertical"} gap={2}>
+                    <Stack direction={"horizontal"} gap={2} className={"ms-auto"}>
+                        <ProfileButton />
+                        <SignoutButton />
+                    </Stack>
+                    <Stack className={"ms-auto"}>
+                        <CategoryButton />
+                    </Stack>
+                </Stack>
             </Stack>
-
-            <div style={{display:"grid", gridTemplateColumns: "repeat(auto-fill, minmax(500px,50%))", gap: "1rem",
+            <div style={{display:"grid", gridTemplateColumns: "repeat(auto-fill, minmax(500px,1fr))", gap: "1rem",
                 alignItems: "flex-start"}}>
                 {eCards}
+
+            </div>
+            <div className={"mt-4"}>
                 {totalExpenseCard()}
             </div>
+            {budget === "null" && (
+                <div className={"float-end pt-3"} >
+                    <p >Looks like you do not have any budget defined. Update your budget from the profile page. </p>
+                </div>
+
+            )}
             {CreateExpenseModal(createExpenseModal, () => setCreateExpenseModal(false), dropdownCategories)}
             {ViewExpenseModal(viewExpenseModal, () => setViewExpenseModal(false), expenseGroupByCategory[viewCategoryName], viewCategoryName)}
         </Container>

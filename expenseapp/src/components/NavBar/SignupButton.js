@@ -11,7 +11,7 @@ const SignupButton = () => {
 
     return (
         <div>
-            <Button type={"submit"} onClick={routeToSignupPage}>Signup</Button>
+            <Button color={"primary"} type={"submit"} onClick={routeToSignupPage}>Signup</Button>
         </div>
     )
 }

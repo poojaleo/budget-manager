@@ -66,7 +66,7 @@ const CreateCategoryModal = (show, handleClose) => {
                                    defaultValue={selectedCategory.categoryBudget} required={true} onChange={onCreateChange} />
                         </FormGroup>
                         <div className={"d-flex justify-content-end"}>
-                            <Button type={"submit"} variant={"primary"}>Create Category</Button>
+                            <Button type={"submit"} variant={"outline-success"}>Create Category</Button>
                         </div>
                     </Modal.Body>
 

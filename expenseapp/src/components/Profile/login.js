@@ -55,7 +55,8 @@ const Login = (props) => {
         }).catch(error => {
            // console.log('Error: ' + error.toJSON())
             console.log(error.message);
-            setMessage(error.message);
+            setMessage("Looks like there is an issue with your username or password. " +
+                "Please enter valid credentials");
         })
     }
 
@@ -63,7 +64,7 @@ const Login = (props) => {
 
            <div>
                <div className={"signin"}>
-                   <h4>Login</h4>
+                   <h4>Welcome Back!</h4>
                    <Form className={"form"} onSubmit={handleFormSubmit}>
                        <FormGroup>
                            <Label htmlFor={"username"}>Username</Label>
@@ -80,10 +81,7 @@ const Login = (props) => {
                            <FormFeedback>
                                Uh oh! Looks like there is an issue with your password.
                            </FormFeedback>
-                           <FormFeedback valid>
-                               That's a tasty looking password you've got there.
-                           </FormFeedback>
-                           <FormText>Your password needs to be blah blah.</FormText>
+                           <FormText>Your password needs to be minimum 8 characters, 1 uppercase, 1 lowercase and 1 special character.</FormText>
                        </FormGroup>
                        <Button>Login</Button>
                    </Form>

@@ -11,7 +11,7 @@ const LoginButton = () => {
 
     return (
         <div>
-            <Button type={"submit"} onClick={routeToLoginPage}>Login</Button>
+            <Button color={"primary"} type={"submit"} onClick={routeToLoginPage}>Login</Button>
         </div>
     )
 }

@@ -9,6 +9,7 @@ import ExpenseButton from "../Expense/ExpenseButton";
 import CategoryCard from "./CategoryCard";
 import CreateCategoryModal from "./CreateCategoryModal";
 import UpdateCategoryModal from "./UpdateCategoryModal";
+import SignoutButton from "../NavBar/SignoutButton";
 
 const Category = (props) => {
     const [username, setUsername] = useState('');
@@ -100,7 +101,7 @@ const Category = (props) => {
 
                {CategoryCard(category.categoryName, category.categoryBudget, budget,
                    () => openUpdateCategoryModal(category.categoryName, category.categoryBudget),
-                   () => deleteCategory(category.categoryName))}
+                   () => deleteCategory(category.categoryName), true)}
             </div>
         )
     })
@@ -112,7 +113,7 @@ const Category = (props) => {
     const totalCatCard = () => {
         return (
             <div>
-                {CategoryCard("All Categories", totalCatBudget, budget)}
+                {CategoryCard("All Categories", totalCatBudget, budget,null, null, false)}
             </div>
         )
     }
@@ -123,28 +124,38 @@ const Category = (props) => {
     return (
         <Container className={"pt-4"}>
             <Stack direction={"horizontal"} gap={2} className={"mb-4"}>
-                <Stack direction={"vertical"}>
+                <Stack direction={"vertical"} gap={2}>
                     <h2 className={"me-auto"}>Categories</h2>
                     <h6>Hi {username}, Below is an overview of your categories.</h6>
-                </Stack>
-                <div className={"buttons"}>
-                    <div className={"manage-buttons"}>
-                        <ProfileButton />
-                    </div>
-                    <div className={"manage-buttons"}>
-                        <ExpenseButton />
-                    </div>
-                    <div className={"manage-buttons"}>
+                    <div>
                         <Button color={"info"} onClick={() => setCreateModal(true)}>Create Category</Button>
                     </div>
-
+                </Stack>
+                <Stack direction={"vertical"} gap={2} >
+                    <Stack direction={"horizontal"} gap={2} className={"ms-auto"}>
+                        <ProfileButton />
+                        <SignoutButton />
+                    </Stack>
+                    <Stack className={"ms-auto"}>
+                        <ExpenseButton />
+                    </Stack>
+                </Stack>
+                <div>
                 </div>
             </Stack>
-            <div style={{display:"grid", gridTemplateColumns: "repeat(auto-fill, minmax(500px,50%))", gap: "1rem",
+            <div style={{display:"grid", gridTemplateColumns: "repeat(auto-fill, minmax(500px,1fr))", gap: "1rem",
                 alignItems: "flex-start"}}>
                 {categoryCards}
+            </div>
+            <div className={"mt-4"}>
                 {totalCatCard()}
             </div>
+            {budget === "null" && (
+                <div className={"float-end pt-3"} >
+                    <p >Looks like you do not have any budget defined. Update your budget from the profile page. </p>
+                </div>
+
+            )}
 
             {CreateCategoryModal(createModal, () => setCreateModal(false))}
             {UpdateCategoryModal(updateModal, ()=> setUpdateModal(false),

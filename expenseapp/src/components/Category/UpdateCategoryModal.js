@@ -55,7 +55,7 @@ const UpdateCategoryModal = (show, handleClose, catName, catBudget) => {
                                    defaultValue={catBudget} required={true} onChange={(event) => catBudget = event.target.value} />
                         </FormGroup>
                         <div className={"d-flex justify-content-end"}>
-                            <Button type={"submit"} variant={"primary"}>Update Category</Button>
+                            <Button type={"submit"} variant={"outline-success"}>Update Category</Button>
                         </div>
                     </Modal.Body>
 

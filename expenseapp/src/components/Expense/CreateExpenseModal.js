@@ -98,7 +98,7 @@ const CreateExpenseModal = (show, handleClose, categories) => {
                             </Form.Control>
                         </FormGroup>
                         <div className={"d-flex justify-content-end"}>
-                            <Button type={"submit"} variant={"primary"}>Create Expense</Button>
+                            <Button type={"submit"} variant={"outline-success"}>Create Expense</Button>
                         </div>
                     </Modal.Body>
 

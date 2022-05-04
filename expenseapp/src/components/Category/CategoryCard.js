@@ -4,7 +4,7 @@ import {currencyFormatter} from "../utils/utils";
 import UpdateCategoryModal from "./UpdateCategoryModal";
 
 
-const CategoryCard = (categoryName, categoryBudget, totalBudget, onUpdateCategoryClick, onDeleteCategoryClick) => {
+const CategoryCard = (categoryName, categoryBudget, totalBudget, onUpdateCategoryClick, onDeleteCategoryClick, showButton) => {
     const getProgressBarVariant = (amount, max) => {
         const ratio = amount/max;
         if(ratio < 0.5)
@@ -26,10 +26,12 @@ const CategoryCard = (categoryName, categoryBudget, totalBudget, onUpdateCategor
                 </Card.Title>
                 <ProgressBar className={"rounder-pill"} variant={getProgressBarVariant(categoryBudget, totalBudget)}
                 min={0} now={categoryBudget} max={totalBudget}/>
-                <Stack direction={"horizontal"} gap={2} className={"mt-4"}>
-                    <Button variant={"primary"} className={"ms-auto"} onClick={onUpdateCategoryClick}>Update Category</Button>
-                    <Button variant={"outline-danger"} onClick={onDeleteCategoryClick}>Delete Category</Button>
-                </Stack>
+                {showButton && (
+                    <Stack direction={"horizontal"} gap={2} className={"mt-4"}>
+                        <Button variant={"info"} className={"ms-auto"} onClick={onUpdateCategoryClick}>Update Category</Button>
+                        <Button variant={"outline-danger"} onClick={onDeleteCategoryClick}>Delete Category</Button>
+                    </Stack>
+                )}
 
             </Card.Body>
         </Card>
