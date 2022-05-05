@@ -20,16 +20,16 @@ U3. As an TrackBudget customer, I want to set my own total budget for the month.
 U3. As an TrackBudget customer, I want to create a new expense with description,
 expense date and merchant/vendor used
 
-U5. As an ExpenseTracker customer, I want to categorize my transactions into a particular category.
+U5. As an TrackBudget customer, I want to categorize my transactions into a particular category.
 
-U6. As an ExpenseTracker customer, I want to create multiple categories and
+U6. As an TrackBudget customer, I want to create multiple categories and
 set monthly budget for each category.
 
-U7. As an ExpenseTracker customer, I should have the ability to delete the expenses.
+U7. As an TrackBudget customer, I should have the ability to delete the expenses.
 
-U8. As an ExpenseTracker customer, I can delete a category if not in use.
+U8. As an TrackBudget customer, I can delete a category if not in use.
 
-U7. As an ExpenseTracker customer, I want to be notified when I exceed my budget.
+U7. As an TrackBudget customer, I want to be notified when I exceed my budget.
 
 
 ## 3. Project Scope
@@ -45,7 +45,7 @@ U7. As an ExpenseTracker customer, I want to be notified when I exceed my budget
 
 ### 3.2. Out of Scope
 
-* Ability to update password as there is currently no email verificiation.
+* Ability to update password as there is currently no email verification.
 * Users will not be able to upload receipts of the expense.
 * Integration with a bank service provider
 * The ability to pay a bill directly from the website
