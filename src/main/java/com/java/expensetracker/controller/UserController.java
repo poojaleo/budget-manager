@@ -9,6 +9,8 @@ import com.java.expensetracker.request.UserRequest;
 import com.java.expensetracker.response.budgettrackeruser.AllUserResponse;
 import com.java.expensetracker.response.budgettrackeruser.UserResponse;
 import com.java.expensetracker.utility.ExpenseTrackerUtility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +26,7 @@ import java.util.Optional;
 @RequestMapping("/api")
 public class UserController {
     private final UserRepository userRepository;
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     public UserController(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -47,8 +50,8 @@ public class UserController {
         return new ResponseEntity<>(budgetTrackerUsers, HttpStatus.OK);
     }
 
-    /*@GetMapping("{username}")
-    public ResponseEntity<?> getUser(@PathVariable String username, @RequestParam String password) {
+    @GetMapping("{username}")
+    public ResponseEntity<?> getUser(@PathVariable String username) {
         Optional<BudgetTrackerUser> optionalBudgetTrackerUser = userRepository.findById(username);
 
         if(!optionalBudgetTrackerUser.isPresent()) {
@@ -57,56 +60,57 @@ public class UserController {
 
         BudgetTrackerUser budgetTrackerUser = optionalBudgetTrackerUser.get();
 
-        if(!budgetTrackerUser.getPassword().equals(password)) {
-            return new ResponseEntity<>("Incorrect password", HttpStatus.BAD_REQUEST);
-        }
-
         UserResponse userResponse = new UserResponse(budgetTrackerUser.getUsername(), budgetTrackerUser.getFullName(),
                 budgetTrackerUser.getEmailAddress(), budgetTrackerUser.getMonthlyIncome(),
                 budgetTrackerUser.getMonthlyBudget(), budgetTrackerUser.getCreatedAt());
 
         return new ResponseEntity<>(userResponse, HttpStatus.OK);
-    }*/
+    }
 
-    @PostMapping
+    @PostMapping("/auth/signup")
     public ResponseEntity<?> createUser(@RequestBody CreateUserRequest createUserRequest) {
-        Optional<BudgetTrackerUser> budgetTrackerUserOptional = userRepository.findById(createUserRequest.getUsername());
-
-        if(budgetTrackerUserOptional.isPresent()) {
-            return new ResponseEntity<>(String.format("Username: %s already exists", createUserRequest.getUsername()),
-                    HttpStatus.BAD_REQUEST);
-        }
-
-        Optional<BudgetTrackerUser> budgetTrackerUserEmailCheck = userRepository.findByEmailAddress(createUserRequest.getEmailAddress());
-
-        if(budgetTrackerUserEmailCheck.isPresent()) {
-            return new ResponseEntity<>(String.format("Email Address: %s already exists",
-                    createUserRequest.getEmailAddress()), HttpStatus.BAD_REQUEST);
-        }
-        BudgetTrackerUser budgetTrackerUser = new BudgetTrackerUser();
-
+        logger.info(createUserRequest.toString());
         try {
-            budgetTrackerUser = createOrUpdateUser(budgetTrackerUser, createUserRequest, createUserRequest.getUsername());
-        } catch (InvalidUserException invalidUserException) {
-            return new ResponseEntity<>(invalidUserException.getMessage(), HttpStatus.BAD_REQUEST);
+            Optional<BudgetTrackerUser> budgetTrackerUserOptional = userRepository.findById(createUserRequest.getUsername());
+            logger.info(budgetTrackerUserOptional.toString());
+            if(budgetTrackerUserOptional.isPresent()) {
+                return new ResponseEntity<>(String.format("Username: %s already exists", createUserRequest.getUsername()),
+                        HttpStatus.BAD_REQUEST);
+            }
+
+            Optional<BudgetTrackerUser> budgetTrackerUserEmailCheck = userRepository.findByEmailAddress(createUserRequest.getEmailAddress());
+
+            if(budgetTrackerUserEmailCheck.isPresent()) {
+                return new ResponseEntity<>(String.format("Email Address: %s already exists",
+                        createUserRequest.getEmailAddress()), HttpStatus.BAD_REQUEST);
+            }
+            BudgetTrackerUser budgetTrackerUser = new BudgetTrackerUser();
+
+            try {
+                budgetTrackerUser = createOrUpdateUser(budgetTrackerUser, createUserRequest, createUserRequest.getUsername());
+            } catch (InvalidUserException invalidUserException) {
+                return new ResponseEntity<>(invalidUserException.getMessage(), HttpStatus.BAD_REQUEST);
+            }
+
+            budgetTrackerUser.setCreatedAt(new Timestamp(System.currentTimeMillis()).toString());
+
+            BudgetTrackerUser result = userRepository.save(budgetTrackerUser);
+
+            UserResponse userResponse = new UserResponse(result.getUsername(), result.getFullName(), result.getEmailAddress(),
+                    result.getMonthlyIncome(), result.getMonthlyBudget(), result.getCreatedAt());
+
+            String url = "/api" + createUserRequest.getUsername();
+            url = encodeStringToUrl(url);
+
+            try {
+                return ResponseEntity.created(new URI(url)).body(userResponse);
+            } catch (URISyntaxException uriSyntaxException) {
+                return new ResponseEntity<>("Was unable to create the user", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-
-        budgetTrackerUser.setCreatedAt(new Timestamp(System.currentTimeMillis()).toString());
-
-        BudgetTrackerUser result = userRepository.save(budgetTrackerUser);
-
-        UserResponse userResponse = new UserResponse(result.getUsername(), result.getFullName(), result.getEmailAddress(),
-                result.getMonthlyIncome(), result.getMonthlyBudget(), result.getCreatedAt());
-
-        String url = "/api" + createUserRequest.getUsername();
-        url = encodeStringToUrl(url);
-
-        try {
-            return ResponseEntity.created(new URI(url)).body(userResponse);
-        } catch (URISyntaxException uriSyntaxException) {
-            return new ResponseEntity<>("Was unable to create the user", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
     }
 
     @PutMapping("{username}")
