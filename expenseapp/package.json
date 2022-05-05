@@ -22,7 +22,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
-  "proxy": "http://localhost:8080/api",
+  "proxy": "http://exp-tracker-alb-1157495979.us-west-2.elb.amazonaws.com/api",
   "eslintConfig": {
     "extends": [
       "react-app",
