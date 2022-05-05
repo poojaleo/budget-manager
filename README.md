@@ -55,7 +55,7 @@ U7. As an TrackBudget customer, I want to be notified when I exceed my budget.
 
 ## 4. Architecture
 
-![Architecture](/Users/pooja/lambda/Spring Projects/expensetracker/src/main/resources/classdiagrams/TrackBudgetArchitecture.png)
+![Architecture](/src/main/resources/classdiagrams/TrackBudgetArchitecture.png)
 *Figure 1: Diagram showing the architecture of Track Budget Application. A user using the Front End React Website makes an API call which connects 
 to the AWS load balancer. This forwards the requests to ECS, which connects to a persistent data store for fulfilling the 
 request and sends the response back to the client.*
