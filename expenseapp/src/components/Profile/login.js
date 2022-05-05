@@ -6,8 +6,7 @@ import axios from 'axios';
 import "./login.css";
 import SignupButton from "../NavBar/SignupButton";
 
-
-//const baseURL = "http://localhost:8080/api/auth";
+const baseURL = "http://exp-tracker-alb-1157495979.us-west-2.elb.amazonaws.com/api";
 
 const Login = (props) => {
     const [username, setUsername] = useState('');
@@ -47,7 +46,9 @@ const Login = (props) => {
             "password": password
         }
 
-        axios.post('/auth/signin', requestBody).then(response => {
+        const url = `${baseURL}/auth/signin`;
+
+        axios.post(url, requestBody).then(response => {
             console.log(response.data);
             authService.setUserSession(username, response.data.jwtToken);
             props.authenticate();

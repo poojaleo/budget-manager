@@ -23,7 +23,7 @@ const Category = (props) => {
     const [createModal, setCreateModal] = useState(false);
     const [updateModal, setUpdateModal]  = useState(false);
 
-
+    const baseURL = "http://exp-tracker-alb-1157495979.us-west-2.elb.amazonaws.com/api";
 
     useEffect(() => {
         getAllCategories();
@@ -44,7 +44,7 @@ const Category = (props) => {
             }
         }
 
-        const url = `/${username}/category`;
+        const url = `${baseURL}/${username}/category`;
 
         axios.get(url, requestHeader).then(response => {
             console.log(response.data);
@@ -64,7 +64,7 @@ const Category = (props) => {
                 "Authorization": "Bearer " + token
             }
         }
-        const url = `/${username}/category/${name}`;
+        const url = `${baseURL}/${username}/category/${name}`;
 
         axios.delete(url, requestHeader).then(response => {
             console.log(response.data);

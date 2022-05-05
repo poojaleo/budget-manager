@@ -6,6 +6,8 @@ import {Input, Label} from "reactstrap";
 
 const UpdateCategoryModal = (show, handleClose, catName, catBudget) => {
 
+    const baseURL = "http://exp-tracker-alb-1157495979.us-west-2.elb.amazonaws.com/api";
+
     const updateCategory = (event) => {
         event.preventDefault();
         const username = AuthService.getCurrentUser();
@@ -21,7 +23,7 @@ const UpdateCategoryModal = (show, handleClose, catName, catBudget) => {
         const catGName = catName
         const catGBudget = catBudget.toString();
 
-        const url = `/${username}/category/${catGName}`;
+        const url = `${baseURL}/${username}/category/${catGName}`;
 
         const requestBody = {
             "budget": catGBudget

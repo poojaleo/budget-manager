@@ -7,12 +7,7 @@ import {Input, Label} from "reactstrap";
 const CreateExpenseModal = (show, handleClose, categories) => {
     const [expense, setExpense] = useState({expenseDate: '', description: '', merchant: '', amount: 0.00});
     const [categoryName, setCategoryName] = useState('');
-/*
-    useEffect(() => {
-        if(categories[0]["categoryName"] !== undefined) {
-            setCategoryName(categories[0]["categoryName"]);
-        }
-    }, [])*/
+    const baseURL = "http://exp-tracker-alb-1157495979.us-west-2.elb.amazonaws.com/api";
 
     const onCreateChange = (event) => {
         event.preventDefault();
@@ -33,7 +28,7 @@ const CreateExpenseModal = (show, handleClose, categories) => {
                 "Authorization": "Bearer " + token
             }
         }
-        const url = `/${username}/expense`;
+        const url = `${baseURL}/${username}/expense`;
 
         const requestBody = {
             "expenseDate": expense.expenseDate,
