@@ -46,10 +46,19 @@ const Login = (props) => {
             "password": password
         }
 
+        const requestHeader = {
+            headers : {
+                "Access-Control-Allow-Headers" : "Content-Type",
+                "Access-Control-Allow-Origin": "https://main.d1hpmgnet94wqd.amplifyapp.com",
+                "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PUT,DELETE"
+            }
+        }
+
+
         const url = `${baseURL}/auth/signin`;
         //const url = `auth/signin`;
 
-        axios.post(url, requestBody).then(response => {
+        axios.post(url, requestBody, requestHeader).then(response => {
             console.log(response.data);
             authService.setUserSession(username, response.data.jwtToken);
             props.authenticate();
