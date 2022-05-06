@@ -6,7 +6,7 @@ import {Input, Label} from "reactstrap";
 
 const CreateCategoryModal = (show, handleClose) => {
     const [selectedCategory, setSelectedCategory] = useState({categoryName: '', categoryBudget: ''});
-    const baseURL = "http://exp-tracker-alb-1157495979.us-west-2.elb.amazonaws.com/api";
+    //const baseURL = "http://exp-tracker-alb-1157495979.us-west-2.elb.amazonaws.com/api";
 
     const onCreateChange = (event) => {
         event.preventDefault();
@@ -31,8 +31,8 @@ const CreateCategoryModal = (show, handleClose) => {
             }
         }
 
-        const url = `${baseURL}/${username}/category`;
-        //const url = `${username}/category`;
+        //const url = `${baseURL}/${username}/category`;
+        const url = `${username}/category`;
 
         const requestBody = {
             "categoryName": catName,
