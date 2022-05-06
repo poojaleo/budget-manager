@@ -6,7 +6,7 @@ import axios from 'axios';
 import "./login.css";
 import SignupButton from "../NavBar/SignupButton";
 
-//const baseURL = "http://exp-tracker-alb-1157495979.us-west-2.elb.amazonaws.com/api";
+const baseURL = "http://exp-tracker-alb-1157495979.us-west-2.elb.amazonaws.com/api";
 
 const Login = (props) => {
     const [username, setUsername] = useState('');
@@ -46,8 +46,8 @@ const Login = (props) => {
             "password": password
         }
 
-        //const url = `${baseURL}/auth/signin`;
-        const url = `auth/signin`;
+        const url = `${baseURL}/auth/signin`;
+        //const url = `auth/signin`;
 
         axios.post(url, requestBody).then(response => {
             console.log(response.data);
