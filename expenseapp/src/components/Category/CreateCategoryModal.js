@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {Button, Form, FormControl, FormGroup, FormLabel, Modal} from "react-bootstrap";
+import {Button, Form, FormGroup, Modal} from "react-bootstrap";
 import axios from "axios";
 import AuthService from "../../services/auth.service";
 import {Input, Label} from "reactstrap";

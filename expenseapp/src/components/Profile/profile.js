@@ -94,14 +94,6 @@ const Profile = (props) => {
         setMonthlyIncome(event.target.value);
     }
 
-    const handleBudgetChange = (event) => {
-        event.preventDefault();
-        setMonthlyBudget(event.target.value);
-    }
-
-
-
-
     return (
         <Container className="mt-5 mx-auto">
             <div className={"profileHeader"}>

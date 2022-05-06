@@ -1,7 +1,6 @@
-import React, {useState} from "react";
+import React from "react";
 import {Button, Card, ProgressBar, Stack} from "react-bootstrap";
 import {currencyFormatter} from "../utils/utils";
-import UpdateCategoryModal from "./UpdateCategoryModal";
 
 
 const CategoryCard = (categoryName, categoryBudget, totalBudget, onUpdateCategoryClick, onDeleteCategoryClick, showButton) => {

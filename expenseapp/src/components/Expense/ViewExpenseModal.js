@@ -1,4 +1,4 @@
-import {currencyFormatter, dateFormatter} from "../utils/utils";
+import {currencyFormatter} from "../utils/utils";
 import {Button, Modal, Stack, Table, Form, FormGroup} from "react-bootstrap";
 import React, {useState} from "react";
 import AuthService from "../../services/auth.service";
@@ -11,18 +11,6 @@ const ViewExpenseModal = (show, handleClose, expenses, categoryName) => {
     const [exp, setExp] = useState({});
 
     const baseURL = "http://exp-tracker-alb-1157495979.us-west-2.elb.amazonaws.com/api";
-
-    const generateRows = expenses?.map(exp => {
-        console.log(exp);
-        console.log(new Date(exp.expenseDate).toISOString());
-        return (
-            <Stack direction={"horizontal"} gap={2} key={exp.expenseId}>
-                <div className={"fs-5"}>{exp.description}</div>
-                <div className="fs-6">{currencyFormatter.format(exp.amount)}</div>
-                <div className="fs-6">{new Date(exp.expenseDate).toISOString().substring(0,10)}</div>
-            </Stack>
-        )
-    })
 
     const deleteExpense = (expenseId) => {
 

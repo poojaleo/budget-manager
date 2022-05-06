@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Route, Routes, Switch} from "react-router-dom";
+import {Route, Routes} from "react-router-dom";
 import Home from "./components/Profile/home";
 import Login from "./components/Profile/login";
 import Signup from "./components/Profile/signup";
@@ -11,7 +11,7 @@ import Expense from "./components/Expense/Expense";
 
 function App() {
 
-    const [isAuthentication, setAuthentication] = useState(null);
+
     const [isTokenSet, setToken] = useState(AuthService.getToken);
 
     useEffect(() => {
@@ -21,12 +21,10 @@ function App() {
     const tokenAuthState = () => {
         const token = AuthService.getToken();
 
-        if(token == undefined || token == null) {
-            setAuthentication(false);
+        if(token === undefined || token === null) {
             setToken(token);
         } else {
             setToken(token);
-            setAuthentication(true);
         }
     }
 

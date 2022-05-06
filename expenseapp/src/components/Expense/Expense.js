@@ -3,28 +3,23 @@ import AuthService from "../../services/auth.service";
 import axios from "axios";
 import {Container, Stack} from "react-bootstrap";
 import ExpenseCard from "./ExpenseCard";
-import CategoryCard from "../Category/CategoryCard";
 import ProfileButton from "../Profile/ProfileButton";
 import CategoryButton from "../Category/CategoryButton";
 import {Button} from "reactstrap";
 import CreateExpenseModal from "./CreateExpenseModal";
 import ViewExpenseModal from "./ViewExpenseModal";
 import SignoutButton from "../NavBar/SignoutButton";
-import ExpenseButton from "./ExpenseButton";
 
 const Expense = (props) => {
     const [username, setUsername] = useState('');
-    const [token, setToken] = useState('');
     const [allExpenses, setAllExpenses] = useState([]);
     const [budget, setBudget] = useState('');
     const [allCategories, setAllCategories] = useState([]);
     const [expenseGroupByCategory, setExpenseGroupByCategory] = useState({});
-    const [loading, isLoading] = useState(true);
     const [createExpenseModal, setCreateExpenseModal] = useState(false)
     const [viewExpenseModal, setViewExpenseModal] = useState(false);
     const [viewCategoryName, setViewCategoryName] = useState(false);
     const [dropdownCategories, setDropdownCategories] = useState([]);
-    const [sumExpense, setSumExpense] = useState(0);
 
     const baseURL = "http://exp-tracker-alb-1157495979.us-west-2.elb.amazonaws.com/api";
 
@@ -38,7 +33,6 @@ const Expense = (props) => {
         const username = AuthService.getCurrentUser();
         const budget = AuthService.getTotalBudget();
         setUsername(username);
-        setToken(token);
         setBudget(budget);
 
         const requestHeader = {
@@ -88,7 +82,7 @@ const Expense = (props) => {
 
     const openAddExpenseModal = (event, catName) => {
         event.preventDefault();
-        const catSelected = allCategories.filter(cat => cat.categoryName == catName);
+        const catSelected = allCategories.filter(cat => cat.categoryName === catName);
         setDropdownCategories(catSelected);
         setCreateExpenseModal(true);
     }
@@ -107,7 +101,7 @@ const Expense = (props) => {
     const eCards =  Object.keys(expenseGroupByCategory).map(key => {
         const catName = key;
         const catTotalBudget = allCategories.filter(cat =>  {
-            return cat.categoryName == catName
+            return cat.categoryName === catName
         });
         //TODO Loading
         if(catTotalBudget[0] === undefined || catTotalBudget == null) {

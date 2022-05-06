@@ -1,9 +1,7 @@
 import React, {useState} from "react";
-import {useNavigate} from "react-router-dom";
 import axios from "axios";
 import LoginButton from "../NavBar/LoginButton";
 import {Button, Form, FormFeedback, FormGroup, FormText, Input, Label} from "reactstrap";
-import SignupButton from "../NavBar/SignupButton";
 
 const Signup = (props) => {
     const [username, setUsername] = useState('');
@@ -13,7 +11,6 @@ const Signup = (props) => {
     const [validEmail, setValidEmail] = useState(false);
     const [signupSuccessful, setSignup] = useState(false);
     const [message, setMessage] = useState('');
-    const navigate = useNavigate();
 
     const baseURL = "http://exp-tracker-alb-1157495979.us-west-2.elb.amazonaws.com/api";
 
@@ -59,26 +56,6 @@ const Signup = (props) => {
     const setEmailValue = (event) => {
         setEmail(event.target.value);
     }
-
-
-    const successful = () => {
-
-        return (
-            <div>
-                {signupSuccessful ? (
-                    <div>
-                        <h3>{username} successfully registered!!</h3>
-                        <LoginButton />
-                    </div>
-                    ) :
-                    (
-                        <h3>Please try again!!</h3>
-                    )}
-
-            </div>
-        )
-    }
-
 
 
     const handleFormSubmit = (event) => {

@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from "react";
 import AuthService from "../../services/auth.service";
 import axios from "axios";
-import {Button, Card, FormGroup, Table, Form, Label, Input, Container} from "reactstrap";
+import {Button, Container} from "reactstrap";
 import {Stack} from "react-bootstrap";
 import "./Category.css";
 import ProfileButton from "../Profile/ProfileButton";
@@ -14,9 +14,7 @@ import SignoutButton from "../NavBar/SignoutButton";
 const Category = (props) => {
     const [username, setUsername] = useState('');
     const [token, setToken] = useState('');
-    const [emptyCategory, setEmptyCategory] = useState({categoryName: '', categoryBudget: ''});
     const [allCategories, setAllCategories] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState({categoryName: '', categoryBudget: ''});
     const [selectedCategoryName, setSelectedCategoryName] = useState("");
     const [selectedCategoryBudget, setSelectedCategoryBudget] = useState("");
     const [budget, setBudget] = useState('');
@@ -74,17 +72,6 @@ const Category = (props) => {
         })
 
     }
-
-
-
-    const clickOnCreate = (event) => {
-        event.preventDefault();
-        setSelectedCategory(emptyCategory);
-        setCreateModal(true);
-        //TODo: remove setIsCreate
-    }
-
-
 
     const openUpdateCategoryModal = (name, budget) => {
 
