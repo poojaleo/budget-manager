@@ -12,7 +12,7 @@ const Signup = (props) => {
     const [signupSuccessful, setSignup] = useState(false);
     const [message, setMessage] = useState('');
 
-    const baseURL = "http://exp-tracker-alb-1157495979.us-west-2.elb.amazonaws.com/api";
+   // const baseURL = "http://exp-tracker-alb-1157495979.us-west-2.elb.amazonaws.com/api";
 
     const handleUsernameChange = (event) => {
         setUsername(event.target.value);
@@ -67,7 +67,8 @@ const Signup = (props) => {
             "emailAddress": email
         }
 
-        const url = `${baseURL}/auth/signup`;
+       // const url = `${baseURL}/auth/signup`;
+        const url = `auth/signup`;
 
         axios.post(url, requestBody).then(response => {
             console.log(response.data);

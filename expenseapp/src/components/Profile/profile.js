@@ -18,7 +18,7 @@ const Profile = (props) => {
     const [monthlyIncome, setMonthlyIncome] = useState('');
     const [message, setMessage] = useState('');
 
-    const baseURL = "http://exp-tracker-alb-1157495979.us-west-2.elb.amazonaws.com/api";
+  //  const baseURL = "http://exp-tracker-alb-1157495979.us-west-2.elb.amazonaws.com/api";
 
     useEffect(() => {
         tokenAuthState();
@@ -38,8 +38,9 @@ const Profile = (props) => {
             }
         }
 
-        const url = `${baseURL}/${username}`;
+        //const url = `${baseURL}/${username}`;
 
+        const url = `${username}`;
 
         axios.get(url, requestHeader).then(response => {
             console.log(response.data);
@@ -65,7 +66,8 @@ const Profile = (props) => {
             }
         }
 
-        const url = `${baseURL}/${username}`;
+        //const url = `${baseURL}/${username}`;
+        const url = `${username}`;
 
         const requestBody = {
             "emailAddress": email,

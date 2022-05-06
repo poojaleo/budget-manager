@@ -21,7 +21,7 @@ const Expense = (props) => {
     const [viewCategoryName, setViewCategoryName] = useState(false);
     const [dropdownCategories, setDropdownCategories] = useState([]);
 
-    const baseURL = "http://exp-tracker-alb-1157495979.us-west-2.elb.amazonaws.com/api";
+    //const baseURL = "http://exp-tracker-alb-1157495979.us-west-2.elb.amazonaws.com/api";
 
     useEffect(() => {
         getAllExpenses();
@@ -42,7 +42,9 @@ const Expense = (props) => {
             }
         }
 
-        const url = `${baseURL}/${username}/expense`;
+        //const url = `${baseURL}/${username}/expense`;
+
+        const url = `${username}/expense`;
 
         axios.get(url, requestHeader).then(response => {
             console.log(response.data);
@@ -69,7 +71,8 @@ const Expense = (props) => {
             }
         }
 
-        const url = `${baseURL}/${username}/category`;
+        //const url = `${baseURL}/${username}/category`;
+        const url = `${username}/category`;
 
         axios.get(url, requestHeader).then(response => {
             console.log(response.data);

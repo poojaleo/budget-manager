@@ -10,7 +10,7 @@ const ViewExpenseModal = (show, handleClose, expenses, categoryName) => {
     const [showUpdateForm, setShowUpdateForm] = useState(false);
     const [exp, setExp] = useState({});
 
-    const baseURL = "http://exp-tracker-alb-1157495979.us-west-2.elb.amazonaws.com/api";
+    //const baseURL = "http://exp-tracker-alb-1157495979.us-west-2.elb.amazonaws.com/api";
 
     const deleteExpense = (expenseId) => {
 
@@ -25,7 +25,8 @@ const ViewExpenseModal = (show, handleClose, expenses, categoryName) => {
             }
         }
 
-        const url = `${baseURL}/${username}/expense/${expenseId}`;
+        //const url = `${baseURL}/${username}/expense/${expenseId}`;
+        const url = `${username}/expense/${expenseId}`;
 
         axios.delete(url, requestHeader).then(response => {
             console.log(response.data);
